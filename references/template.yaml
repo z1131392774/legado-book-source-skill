@@ -1,0 +1,371 @@
+# ============================================================
+# Legado 书源模板 (YAML 格式)
+# 转换为 JSON 后可导入 Legado 阅读器
+# 使用时先复制本模板并重命名: cp template.yaml 书源名.yaml
+# 转换命令: yq -o=json 书源名.yaml > 书源名.json
+# ============================================================
+#
+# ── 规则类型标志 ──
+#   @@        默认规则(Jsoup选择器)，直接写时可省略@@
+#   @XPath:   XPath规则，以//开头时可省略@XPath
+#   @Json:    JSON规则，以$.开头时可省略@Json
+#   :         正则规则，不可省略，仅用于书籍列表和目录列表
+#   <js>...</js>  JS包裹标签，可在任意位置插入JS代码，也可作规则分隔符
+#               例: tag.li<js></js>//a  或  pre@html<js>处理逻辑</js>
+#
+# ── @ 分隔符语法(核心) ──
+#   @ 为规则分隔符，每段规则可分为3段: 类型@名称@位置
+#   第一段 - 类型: class, id, tag, text, children 等
+#     ·children 获取所有子标签，不需要第二段和第三段
+#     ·text 可根据文本内容获取元素
+#   第二段 - 名称: 如 class名、tag名、text内容的一部分
+#   第三段 - 位置: class/tag/id 会匹配多个，需指定位置
+#     ·正序从0开始(0=第1个)，负数为倒序(-1=倒数第1个)
+#     ·不加位置则获取所有匹配项
+#     ·! 表示排除，格式 !0:1:3 排除第1、2、4个
+#   最后一段为获取内容: text, textNodes, ownText, href, src, html, all 等
+#   正则替换: 末尾加 ##正则##替换内容，替换内容为空时第二个##可省略
+#   多规则组合: || 表示或(任一匹配即可)，&& 表示与(都要匹配)
+#
+#   示例:
+#     class.odd.0@tag.a.0@text
+#     tag.dd.0@tag.h1@text##全文阅读
+#     class.odd.0@tag.a.0@text||tag.dd.0@tag.h1@text##全文阅读
+#
+# ── 数组/区间写法 ──
+#   [index]          取指定索引，如 [0], [-1]
+#   [!index,...]     排除指定索引，如 [!0:2]
+#   [start:end]      区间，start为0或end为-1时可省略，如 [:3], [-2:]
+#   [start:end:step] 带步长的区间，如 [::2](每隔1个取1个)
+#   索引、区间两端、步长均支持负数
+#   head@.1@text ≡ head@[1]@text ≡ head@children[1]@text
+#
+# ── 列表倒置 ──
+#   规则最前面加负号 - 可使列表倒置，适用于目录倒序的网站
+#   例: -tag.dd 获取所有dd标签并倒置顺序
+#   区间反向: tag.div[-1:0] 也可实现反向
+#
+# ── JS规则注意 ──
+#   result 是 Java 对象，字符串操作前必须 String(result) 转换
+#   解析HTML: org.jsoup.Jsoup.parse(result)
+#   打印日志: java.log("msg")
+#   Legado重写了java变量，原生Java用 Packages.java.*
+#   前置规则: <js>前可写其他规则，JS中result为前置规则的结果
+#     例: pre@html<js>处理逻辑</js>  result为pre@html解析后的HTML内容
+#
+# ── URL 变量 ──
+#   {{page}}  Legado内置分页变量，从1开始，搜索/发现URL必须包含
+#   {{key}}   Legado内置搜索关键词变量，发现页带输入框时使用
+#   {{xxx}}   自定义变量，需通过JS定义，如 source.put('bookId', '123')
+#
+#   搜索URL例: https://example.com/search?q={{key}}&page={{page}}
+#   发现URL例: https://example.com/top?page={{page}}
+# ============================================================
+
+# ==================== 基础信息 ====================
+
+# [必填] 书源名称，显示在书源列表中
+bookSourceName: ""
+
+# [可选] 书源分组，多个分组用逗号分隔，如 "玄幻,精品"
+bookSourceGroup: ""
+
+# [必填] 书源类型: 0=文本(小说), 1=音频, 2=图片, 3=文件(下载站), 4=视频
+bookSourceType: 0
+
+# [必填] 书源域名/地址，包括 http/https，同时作为书源唯一标识(主键)
+bookSourceUrl: ""
+
+# [可选] 详情页URL正则，用于自动识别URL是否属于该书源的详情页
+# 例: "https://www\\.example\\.com/book/\\d+"
+bookUrlPattern: ""
+
+# 是否启用此书源
+enabled: true
+
+# 是否启用CookieJar，启用后自动保存每次返回头中Set-Cookie的值
+# 适用于验证码图片等需要session的网站
+enabledCookieJar: false
+
+# 是否启用发现页(发现页在首页展示推荐/排行榜)
+enabledExplore: true
+
+# 手动排序编号，数字越大越靠前
+customOrder: 0
+
+# ==================== 网络请求设置 ====================
+
+# 请求头，key区分大小写(正确: User-Agent, 错误: user-agent)
+# 常用字段: User-Agent, Referer, Cookie
+# 支持代理:
+#   proxy: http://127.0.0.1:1080
+#   proxy: socks5://127.0.0.1:1080
+#   proxy: http://127.0.0.1:1080@用户名@密码
+# 例:
+#   User-Agent: Mozilla/5.0...
+#   Referer: https://www.example.com
+header: ""
+
+# 并发率限制，单位ms，两种格式:
+#   "1000"       访问间隔1秒
+#   "20/60000"   60秒内最多访问20次
+# 可通过JS动态修改: source.putConcurrent(str)
+concurrentRate: ""
+
+# ==================== 登录设置 ====================
+
+# 登录URL，可填写登录链接或实现登录UI逻辑的JavaScript
+# JS中可用: source.getLoginInfo(), source.getLoginInfoMap(), source.putLoginInfo()
+loginUrl: ""
+
+# 登录UI，定义登录界面的输入控件
+# 按钮类型: text, password, button, toggle, select
+# 例:
+#   - name: telephone
+#     type: text
+#     default: "123"
+#   - name: password
+#     type: password
+loginUi: ""
+
+# 登录检测JS，检查是否已登录，返回true表示已登录
+loginCheckJs: ""
+
+# ==================== JS扩展 ====================
+
+# JS库，注入JavaScript到RhinoJs引擎，支持两种格式:
+#   1. 直接填写JavaScript代码片段
+#   2. 引用外部JS文件:
+#        example: https://www.example.com/js/example.js
+# 注意: 函数可能被多线程同时调用，全局变量有竞争问题，声明全局变量必须用var
+jsLib: ""
+
+# ==================== 其他设置 ====================
+
+# 书源注释/说明，纯文本
+bookSourceComment: ""
+
+# 自定义变量说明，描述source.getVariable()/source.putVariable()的用途
+variableComment: ""
+
+# 封面解密JS，返回解密后的ByteArray
+# result为待解密封面的inputStream，src为图片链接
+# 例: java.createSymmetricCrypto("AES/CBC/PKCS5Padding", key, iv).decrypt(result)
+coverDecodeJs: ""
+
+# 是否监听事件来执行回调规则(正文ruleContent.callBackJs)
+eventListener: false
+
+# 是否启用由书源控制的自定义按钮
+customButton: false
+
+# ==================== 发现页 ====================
+
+# 发现页URL列表，定义发现页的分类和地址
+# 格式1 (简单): "分类名::url\n分类名::url"
+# 格式2 (带交互): 支持url/text/button/toggle/select类型
+#   - title: 月票榜
+#     url: https://...?page={{page}}
+#   - title: 关键词
+#     type: text
+#   - title: 筛选
+#     type: select
+#     chars: [月票, 人气]
+#     default: 人气
+#     style:
+#       layout_flexGrow: 0
+#       layout_flexBasisPercent: -1
+#       layout_justifySelf: flex_end
+# 额外变量infoMap可读取按钮切换值: var input = infoMap["关键词"]
+# URL中可用变量: {{page}}(页码，从1开始), {{key}}(搜索关键词)
+exploreUrl: ""
+
+# 发现筛选规则，JSON格式
+exploreScreen: ""
+
+# ==================== 搜索 ====================
+
+# 搜索URL，支持GET和POST
+# GET格式:  "https://www.example.com/search?q={{key}}&page={{page}}"
+# POST格式: "https://www.example.com/search,{"method":"POST","body":"keyword={{key}}&page={{page}}"}"
+# URL中可用变量: {{key}}(搜索关键词), {{page}}(页码，从1开始)
+# 支持重定向拦截: 用java.get()/java.post()获取重定向后的URL
+searchUrl: ""
+
+# ==================== 搜索规则 ====================
+# 用于解析搜索结果页，提取书籍列表信息
+ruleSearch:
+  # 书籍列表选择器，定位搜索结果中的每本书的容器元素
+  # 例: ".book-list > li" 或 ".result-list .result-item"
+  bookList: ""
+
+  # 书名选择器
+  name: ""
+
+  # 作者选择器
+  author: ""
+
+  # 分类/标签选择器
+  kind: ""
+
+  # 字数选择器
+  wordCount: ""
+
+  # 最新章节选择器
+  lastChapter: ""
+
+  # 简介选择器
+  intro: ""
+
+  # 封面图片URL选择器
+  coverUrl: ""
+
+  # 书籍详情页URL选择器
+  bookUrl: ""
+
+  # 更新时间选择器
+  updateTime: ""
+
+  # 校验关键字，调试搜索时使用的默认关键词
+  checkKeyWord: ""
+
+# ==================== 发现规则 ====================
+# 用于解析发现页，提取书籍列表信息
+# 字段含义同ruleSearch
+ruleExplore:
+  bookList: ""
+  name: ""
+  author: ""
+  kind: ""
+  wordCount: ""
+  lastChapter: ""
+  intro: ""
+  coverUrl: ""
+  bookUrl: ""
+  updateTime: ""
+
+# ==================== 详情页规则 ====================
+# 用于解析书籍详情页，提取书籍完整信息
+ruleBookInfo:
+  # 初始化规则，在解析其他字段前执行，可用于预处理页面或设置变量
+  # JS中result为详情页内容
+  init: ""
+
+  # 书名选择器(可覆盖搜索结果中的书名)
+  name: ""
+
+  # 作者选择器
+  author: ""
+
+  # 分类/标签选择器
+  kind: ""
+
+  # 字数选择器
+  wordCount: ""
+
+  # 最新章节选择器
+  lastChapter: ""
+
+  # 简介选择器
+  # 支持HTML样式: 用<usehtml></usehtml>包裹可识别HTML标签
+  # 支持Markdown: 用<md></md>包裹
+  # 支持浏览器渲染: 用<useweb></useweb>包裹
+  intro: ""
+
+  # 封面图片URL选择器
+  coverUrl: ""
+
+  # 目录页URL选择器(当目录页与详情页不一样时使用)
+  tocUrl: ""
+
+  # 更新时间选择器
+  updateTime: ""
+
+  # 是否允许重命名，JS规则，返回true时允许用户修改书名和作者
+  canReName: ""
+
+  # 下载URL选择器(书源类型为"文件"时使用)
+  downloadUrls: ""
+
+# ==================== 目录规则 ====================
+# 用于解析目录页，提取章节列表
+ruleToc:
+  # 章节列表选择器，定位目录中的每个章节容器元素
+  # 例: ".chapter-list li" 或 "#list dd"
+  chapterList: ""
+
+  # 章节名选择器
+  chapterName: ""
+
+  # 章节URL选择器
+  chapterUrl: ""
+
+  # 下一页目录URL选择器(目录分页时使用)
+  nextTocUrl: ""
+
+  # 是否为卷名选择器，返回非空字符串表示该条目是卷名而非章节
+  isVolume: ""
+
+  # 是否为VIP章节选择器
+  isVip: ""
+
+  # 是否为付费章节选择器
+  isPay: ""
+
+  # 更新时间选择器
+  updateTime: ""
+
+  # 目录预处理JS，在解析目录前执行
+  preUpdateJs: ""
+
+  # 格式化JS，对目录列表进行后处理
+  formatJs: ""
+
+# ==================== 正文规则 ====================
+# 用于解析正文页，提取章节内容
+ruleContent:
+  # 正文内容选择器
+  content: ""
+
+  # 替换/净化规则，用于去除正文中的广告、无关内容等
+  # 格式: 正则表达式##替换内容，多个规则用换行分隔
+  # 例: "本章完.*##" (删除"本章完"及后续内容)
+  replaceRegex: ""
+
+  # 下一页正文URL选择器(长章节分页时使用)
+  nextContentUrl: ""
+
+  # 网页JS，在webView中加载正文页后执行的JavaScript
+  # 可用: window.close() 关闭浏览器, screen.orientation.lock() 控制屏幕方向
+  webJs: ""
+
+  # 副文规则:
+  #   文本类型: 获取的内容拼接到正文后面
+  #   音频类型: 获取的内容作为歌词显示
+  #   视频类型: 获取的内容作为弹幕文本加载
+  subContent: ""
+
+  # 标题选择器(部分网站只能在正文中获取章节标题)
+  title: ""
+
+  # 正文源正则，用于从网页源码中匹配正文内容
+  sourceRegex: ""
+
+  # 图片默认样式: "DEFAULT"(默认居中) 或 "FULL"(最大宽度)
+  imageStyle: ""
+
+  # 图片解密JS，返回解密后的ByteArray
+  # result为待解密图片的ByteArray，src为图片链接
+  # 例: java.createSymmetricCrypto("AES/CBC/PKCS5Padding", key, iv).decrypt(result)
+  imageDecode: ""
+
+  # 购买操作，可填写链接或JavaScript
+  # 执行结果是网络链接则自动打开浏览器
+  # JS返回true则自动刷新目录和当前章节
+  payAction: ""
+
+  # 事件回调JS，需先启用eventListener
+  # 可用事件: clickBookName, clickAuthor, clickCustomButton等
+  # result为事件内容，event为事件名称
+  # 返回true可消费事件(阻止默认操作)
+  callBackJs: ""
