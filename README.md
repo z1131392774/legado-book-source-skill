@@ -11,18 +11,22 @@
 ## 使用前提
 
 - 已安装 Legado 阅读器
-- 手机与电脑在同一网络
+- 手机与电脑在同一局域网下，并打开web调试功能
 - 安装调试脚本依赖：`pip install pyyaml requests`
 
 ## 快速开始
 
-1. 复制模板创建书源文件
-2. 按 TDD 循环填写搜索/发现 → 详情 → 目录 → 正文
-3. 每个标签页完成后运行调试脚本验证
+发给你的agent
+```
+创建书源。小说网站: https://www.example.com，手机ip地址:{{局域网地址}}
+```
 
 ## token 不够用？
 
 试试 [legado-source-generator](https://github.com/z1131392774/legado-source-generator) —— 可视化点选生成规则，无需手动编写选择器。
+
+## 调试超时
+请先确认能否从你的agent环境连接上你的手机ip地址。比如wsl中可能无法直接连接手机ip地址，请问问你的agent该怎么做。
 
 ## License
 
