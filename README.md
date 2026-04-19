@@ -2,6 +2,10 @@
 
 用于创建、编辑和调试 Legado 阅读器的书源规则。
 
+## 交流群
+
+1101980180
+
 ## 演示视频
 
 [legado阅读生成书源skill演示](https://www.bilibili.com/video/BV1kCdzBQEHx/?share_source=copy_web&vd_source=d81a560ef1078a78be8067363ab6d8dc)
