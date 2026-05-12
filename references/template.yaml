@@ -2,7 +2,6 @@
 # Legado 书源模板 (YAML 格式)
 # 转换为 JSON 后可导入 Legado 阅读器
 # 使用时先复制本模板并重命名: cp template.yaml 书源名.yaml
-# 转换命令: yq -o=json 书源名.yaml > 书源名.json
 # ============================================================
 #
 # ── 规则类型标志 ──
@@ -12,6 +11,7 @@
 #   :         正则规则，不可省略，仅用于书籍列表和目录列表
 #   <js>...</js>  JS包裹标签，可在任意位置插入JS代码，也可作规则分隔符
 #               例: tag.li<js></js>//a  或  pre@html<js>处理逻辑</js>
+#   字段名以Js结尾时，代表此字段接受 js 代码，注意无需使用<js>标签包裹
 #
 # ── @ 分隔符语法(核心) ──
 #   @ 为规则分隔符，每段规则可分为3段: 类型@名称@位置
@@ -60,6 +60,15 @@
 #
 #   搜索URL例: https://example.com/search?q={{key}}&page={{page}}
 #   发现URL例: https://example.com/top?page={{page}}
+#
+# ── URL 选项（行内 JSON，逗号分隔写在 URL 末尾）──
+#   例: https://example.com/page,{"webView":true, "charset":"utf-8"}
+#
+#   webView: true/false   是否使用 WebView 渲染页面（JS动态渲染的网站必开）
+#   method: POST/GET/HEAD 请求方法，默认 GET
+#   charset: string       编码，如 utf-8、gbk（网站编码与默认不同时设置）
+#   header: {key:val}     自定义请求头，如 {"User-Agent":"...", "Referer":"..."}
+#   body: string          POST 请求体
 # ============================================================
 
 # ==================== 基础信息 ====================

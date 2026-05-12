@@ -44,7 +44,7 @@ digraph tdd {
 ### Phase 0: 初始化
 
 ```
-cp /home/simon/legado-sigma/template.yaml ./booksource/书源名.yaml
+cp ./references/template.yaml ./booksource/书源名.yaml
 ```
 
 填写基础信息：
@@ -147,7 +147,6 @@ python3 scripts/legado-debug.py --host <手机IP> --source ~/booksource/书源�
 | 选择器无效 | 检查 HTML 实际结构 |
 | 调试无响应 | 手机锁屏，提醒用户解锁 |
 | 搜索不到 | 请求头加 charset |
-| 表单清空 | 点击「拉取源」恢复 |
 
 ### 调试脚本
 
@@ -168,6 +167,8 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 | 写 JS 规则/复杂选择器 | `references/syntax.md` |
 | 写发现页（JSON格式/按钮/交互） | `references/discovery.md` |
 | 过验证盾（Cloudflare等） | `references/advanced.md` |
+| 页面空白/JS动态渲染/SPA | `references/advanced.md` |
+| webjs等待懒加载页面就绪 | `references/advanced.md` |
 | java 对象方法/内置变量 | `references/jsHelp.md` |
 | 规则标志/登录UI/并发等 | `references/ruleHelp.md` |
 | legado-debug.py脚本疑问 | `scripts/README.md` |
