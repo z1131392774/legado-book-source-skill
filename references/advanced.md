@@ -1,5 +1,13 @@
 # 高级技巧
 
+## UA 更换（反爬第一步）
+
+遇到反爬时，**先换 UA**，这是最简单的反爬手段。在书源header字段中填写 `User-Agent`：
+
+最稳妥的方式是用户在手机上获取自己的浏览器UA，例如使用https://tool.ip138.com/useragent/网站查看UA。注意部分网站针对手机UA和PC UA会分别做适配，网页结构可能变化。
+
+如果还不够，再试 `webView:true` 或 `loginCheckJs`。
+
 ## fallback 机制
 
 当搜索规则未填写时，Legado 会使用发现规则作为 fallback（反之亦然），前提是两者的列表解析规则能产出相同结构的数据。
@@ -97,6 +105,8 @@ URL + 选项解析
      └─ 否 → OkHttp 直接请求
 ```
 
+**注意：** `webView` 设为 `true` 时才会执行 `webJs`。若 `webView` 缺省或为 `false`，即使传了 `webJs` 也不会启用 WebView，直接走 OkHttp。
+
 ### 适用场景
 
 - 页面内容由 JS 动态渲染（SPA 站点）
@@ -105,7 +115,9 @@ URL + 选项解析
 
 ## webjs 等待页面就绪
 
-正文规则中的 `webJs` 字段用于处理**懒加载页面**。与普通请求不同，webjs 会在 WebView 中反复执行，直到返回非 `null` 值才结束。
+正文规则中的 `webJs` 字段可以用于处理**懒加载页面**。与普通请求不同，webjs 会在 WebView 中反复执行，直到返回非 `null` 值才结束。
+
+**前置要求：** 使用 `contentRule.webJs` 前，URL 必须带 `,{"webView":true}` 选项，否则 WebView 路径不通，`webJs` 被静默忽略。如果章节 URL 不便于加选项，可将 webjs 写在内联规则中通过 `@@webjs:` 触发。
 
 ### 原理
 

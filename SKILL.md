@@ -64,7 +64,7 @@ cp ./references/template.yaml ./booksource/书源名.yaml
 
 #### 🔴 RED: 定义预期
 
-用 `chrome-devtools_take_snapshot` 查看目标网页，找到一本具体书籍，**在编写任何选择器之前**，记录预期提取结果：
+用浏览器打开目标网页（可使用 chrome-devtools 或其他浏览器工具），找到一本具体书籍，**在编写任何选择器之前**，记录预期提取结果：
 
 | 字段 | 预期值 |
 |------|--------|
@@ -166,9 +166,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 |------|----------|
 | 写 JS 规则/复杂选择器 | `references/syntax.md` |
 | 写发现页（JSON格式/按钮/交互） | `references/discovery.md` |
-| 过验证盾（Cloudflare等） | `references/advanced.md` |
-| 页面空白/JS动态渲染/SPA | `references/advanced.md` |
-| webjs等待懒加载页面就绪 | `references/advanced.md` |
+| 过反爬/人机验证/JS动态渲染/SPA/webjs懒加载 | `references/advanced.md` |
 | java 对象方法/内置变量 | `references/jsHelp.md` |
 | 规则标志/登录UI/并发等 | `references/ruleHelp.md` |
 | legado-debug.py脚本疑问 | `scripts/README.md` |
