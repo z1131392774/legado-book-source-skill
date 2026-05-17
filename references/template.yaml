@@ -1,74 +1,6 @@
 # ============================================================
 # Legado 书源模板 (YAML 格式)
 # 转换为 JSON 后可导入 Legado 阅读器
-# 使用时先复制本模板并重命名: cp template.yaml 书源名.yaml
-# ============================================================
-#
-# ── 规则类型标志 ──
-#   @@        默认规则(Jsoup选择器)，直接写时可省略@@
-#   @XPath:   XPath规则，以//开头时可省略@XPath
-#   @Json:    JSON规则，以$.开头时可省略@Json
-#   :         正则规则，不可省略，仅用于书籍列表和目录列表
-#   <js>...</js>  JS包裹标签，可在任意位置插入JS代码，也可作规则分隔符
-#               例: tag.li<js></js>//a  或  pre@html<js>处理逻辑</js>
-#   字段名以Js结尾时，代表此字段接受 js 代码，注意无需使用<js>标签包裹
-#
-# ── @ 分隔符语法(核心) ──
-#   @ 为规则分隔符，每段规则可分为3段: 类型@名称@位置
-#   第一段 - 类型: class, id, tag, text, children 等
-#     ·children 获取所有子标签，不需要第二段和第三段
-#     ·text 可根据文本内容获取元素
-#   第二段 - 名称: 如 class名、tag名、text内容的一部分
-#   第三段 - 位置: class/tag/id 会匹配多个，需指定位置
-#     ·正序从0开始(0=第1个)，负数为倒序(-1=倒数第1个)
-#     ·不加位置则获取所有匹配项
-#     ·! 表示排除，格式 !0:1:3 排除第1、2、4个
-#   最后一段为获取内容: text, textNodes, ownText, href, src, html, all 等
-#   正则替换: 末尾加 ##正则##替换内容，替换内容为空时第二个##可省略
-#   多规则组合: || 表示或(任一匹配即可)，&& 表示与(都要匹配)
-#
-#   示例:
-#     class.odd.0@tag.a.0@text
-#     tag.dd.0@tag.h1@text##全文阅读
-#     class.odd.0@tag.a.0@text||tag.dd.0@tag.h1@text##全文阅读
-#
-# ── 数组/区间写法 ──
-#   [index]          取指定索引，如 [0], [-1]
-#   [!index,...]     排除指定索引，如 [!0:2]
-#   [start:end]      区间，start为0或end为-1时可省略，如 [:3], [-2:]
-#   [start:end:step] 带步长的区间，如 [::2](每隔1个取1个)
-#   索引、区间两端、步长均支持负数
-#   head@.1@text ≡ head@[1]@text ≡ head@children[1]@text
-#
-# ── 列表倒置 ──
-#   规则最前面加负号 - 可使列表倒置，适用于目录倒序的网站
-#   例: -tag.dd 获取所有dd标签并倒置顺序
-#   区间反向: tag.div[-1:0] 也可实现反向
-#
-# ── JS规则注意 ──
-#   result 是 Java 对象，字符串操作前必须 String(result) 转换
-#   解析HTML: org.jsoup.Jsoup.parse(result)
-#   打印日志: java.log("msg")
-#   Legado重写了java变量，原生Java用 Packages.java.*
-#   前置规则: <js>前可写其他规则，JS中result为前置规则的结果
-#     例: pre@html<js>处理逻辑</js>  result为pre@html解析后的HTML内容
-#
-# ── URL 变量 ──
-#   {{page}}  Legado内置分页变量，从1开始，搜索/发现URL必须包含
-#   {{key}}   Legado内置搜索关键词变量，发现页带输入框时使用
-#   {{xxx}}   自定义变量，需通过JS定义，如 source.put('bookId', '123')
-#
-#   搜索URL例: https://example.com/search?q={{key}}&page={{page}}
-#   发现URL例: https://example.com/top?page={{page}}
-#
-# ── URL 选项（行内 JSON，逗号分隔写在 URL 末尾）──
-#   例: https://example.com/page,{"webView":true, "charset":"utf-8"}
-#
-#   webView: true/false   是否使用 WebView 渲染页面（JS动态渲染的网站必开）
-#   method: POST/GET/HEAD 请求方法，默认 GET
-#   charset: string       编码，如 utf-8、gbk（网站编码与默认不同时设置）
-#   header: {key:val}     自定义请求头，如 {"User-Agent":"...", "Referer":"..."}
-#   body: string          POST 请求体
 # ============================================================
 
 # ==================== 基础信息 ====================
@@ -80,6 +12,8 @@ bookSourceName: ""
 bookSourceGroup: ""
 
 # [必填] 书源类型: 0=文本(小说), 1=音频, 2=图片, 3=文件(下载站), 4=视频
+#   类型3(文件): 在下载URL规则获取文件链接，截取链接或响应头获取文件信息
+#   类型1(音频): 将正文字符串作为音频链接，序列化后的链接数组拼接成一条音频
 bookSourceType: 0
 
 # [必填] 书源域名/地址，包括 http/https，同时作为书源唯一标识(主键)
@@ -104,12 +38,13 @@ customOrder: 0
 
 # ==================== 网络请求设置 ====================
 
-# 请求头，key区分大小写(正确: User-Agent, 错误: user-agent)
+# 请求头，key大小写敏感
 # 常用字段: User-Agent, Referer, Cookie
 # 支持代理:
 #   proxy: http://127.0.0.1:1080
-#   proxy: socks5://127.0.0.1:1080
+#   proxy: socks5://127.0.0.1:1080 (不支持需要验证的socks5)
 #   proxy: http://127.0.0.1:1080@用户名@密码
+#   无意义请求头（以下会被Legado忽略）: Accept, Accept-Encoding, Accept-Language, Cache-Control, Connection, Host, Upgrade-Insecure-Requests, Content-Length, Content-Encoding, Sec- 开头, X- 开头
 # 格式: json
 # 例:
 #   header: '{"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}'
@@ -159,7 +94,11 @@ variableComment: ""
 
 # 封面解密JS，返回解密后的ByteArray
 # result为待解密封面的inputStream，src为图片链接
-# 例: java.createSymmetricCrypto("AES/CBC/PKCS5Padding", key, iv).decrypt(result)
+# AES例: java.createSymmetricCrypto("AES/CBC/PKCS5Padding", key, iv).decrypt(result)
+# XOR例:
+#   function decodeImage(data, key) { var out = new Packages.java.io.ByteArrayOutputStream();
+#     var byte; while ((byte = data.read()) != -1) { out.write(byte ^ key); } return out.toByteArray(); }
+#   decodeImage(result, key)
 coverDecodeJs: ""
 
 # 是否监听事件来执行回调规则(正文ruleContent.callBackJs)
@@ -172,21 +111,8 @@ customButton: false
 
 # 发现页URL列表，定义发现页的分类和地址
 # 格式1 (简单): "分类名::url\n分类名::url"
-# 格式2 (带交互): 支持url/text/button/toggle/select类型
-#   - title: 月票榜
-#     url: https://...?page={{page}}
-#   - title: 关键词
-#     type: text
-#   - title: 筛选
-#     type: select
-#     chars: [月票, 人气]
-#     default: 人气
-#     style:
-#       layout_flexGrow: 0
-#       layout_flexBasisPercent: -1
-#       layout_justifySelf: flex_end
-# 额外变量infoMap可读取按钮切换值: var input = infoMap["关键词"]
-# URL中可用变量: {{page}}(页码，从1开始), {{key}}(搜索关键词)
+# 格式2 (可自定义样式或控件，用户要求时使用): 见`./references/discovery.md`
+# 必须使用{{page}}
 exploreUrl: ""
 
 # 发现筛选规则，JSON格式
@@ -195,9 +121,7 @@ exploreScreen: ""
 # ==================== 搜索 ====================
 
 # 搜索URL，支持GET和POST
-# GET格式:  "https://www.example.com/search?q={{key}}&page={{page}}"
-# POST格式: "https://www.example.com/search,{"method":"POST","body":"keyword={{key}}&page={{page}}"}"
-# URL中可用变量: {{key}}(搜索关键词), {{page}}(页码，从1开始)
+# 必须使用{{page}}和{{key}}
 # 支持重定向拦截: 用java.get()/java.post()获取重定向后的URL
 searchUrl: ""
 
@@ -238,6 +162,10 @@ ruleSearch:
   # 校验关键字，调试搜索时使用的默认关键词
   checkKeyWord: ""
 
+# fallback 机制：当搜索规则未填写时，Legado 会使用发现规则作为 fallback（反之亦然），
+# 前提是两者的列表解析规则能产出相同结构的数据。
+# 搜索地址和发现地址不会互相 fallback。
+
 # ==================== 发现规则 ====================
 # 用于解析发现页，提取书籍列表信息
 # 字段含义同ruleSearch
@@ -276,7 +204,8 @@ ruleBookInfo:
   lastChapter: ""
 
   # 简介选择器
-  # 支持HTML样式: 用<usehtml></usehtml>包裹可识别HTML标签
+  # 支持HTML样式: 用<usehtml></usehtml>包裹可识别HTML标签和按钮
+  #   <button>文本@onclick:java.toast("Hello")</button>
   # 支持Markdown: 用<md></md>包裹
   # 支持浏览器渲染: 用<useweb></useweb>包裹
   intro: ""
@@ -361,6 +290,11 @@ ruleContent:
   sourceRegex: ""
 
   # 图片默认样式: "DEFAULT"(默认居中) 或 "FULL"(最大宽度)
+  # 图片链接支持:
+  #   click: 点击图片执行JS  例: <img src="url,{"click":"java.toast('hi')"}">
+  #   headers: 自定义请求头  例: <img src="url+","+JSON.stringify({"headers":{"UA":"..."}})">
+  #   width: 像素宽度或百分比  例: {"width":"50%"} 或 {"width":"300"}
+  #   style: 样式(full/single/left/right/text)，大写TEXT占1.5字符位
   imageStyle: ""
 
   # 图片解密JS，返回解密后的ByteArray

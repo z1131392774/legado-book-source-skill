@@ -63,7 +63,7 @@
 
 ## infoMap 变量
 
-读写发现页按钮的交互状态：
+读写发现页按钮的交互状态。详见 [InfoMap 源码](https://github.com/Luoyacheng/legado/blob/main/app/src/main/java/io/legado/app/utils/InfoMap.kt)。
 
 ```javascript
 var input = infoMap["关键词"];       // 读取
