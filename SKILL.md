@@ -47,10 +47,12 @@ digraph tdd {
 cp ./references/template.yaml ./booksource/书源名.yaml
 ```
 
-阅读`./references/basics.md`，然后填写模板基础信息：
-- `bookSourceName`
-- `bookSourceUrl`
-- `bookSourceType`
+填写基础信息：
+- `bookSourceName`: 目标网站名称
+- `bookSourceUrl`: 目标网站域名（含 http/https）
+- `bookSourceType`: 书源类型（0=文本/小说, **2=图片/漫画**, 1=音频, 3=文件, 4=视频）
+
+> **漫画书源注意事项**：漫画源必须设 `bookSourceType: 2`，正文 `imageStyle: FULL`，目录中设 `book.type = 64`。完整指南见 `references/comic.md`。
 
 **注意**：不要删除 YAML 中的字段，空字符串 `""` 表示待填写。
 
@@ -164,8 +166,11 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 
 | 场景 | 加载文件 |
 |------|----------|
+| 写 JS 规则/复杂选择器 | `references/syntax.md` |
 | 写发现页（JSON格式/按钮/交互） | `references/discovery.md` |
-| 规则写了但获取不到内容（反爬/webView/webJs/CF盾） | `references/troubleshoot.md` |
-| 登录/回调/按钮交互 | `references/login.md` |
-| JS API与URL选项参考（java.*/book/chapter/cookie/cache） | `references/js-api.md` |
-| 调试脚本使用 | `scripts/README.md` |
+| 过反爬/人机验证/JS动态渲染/SPA/webjs懒加载 | `references/advanced.md` |
+| java 对象方法/内置变量 | `references/jsHelp.md` |
+| 规则标志/登录UI/并发等 | `references/ruleHelp.md` |
+| 漫画书源：正文模式/加密解密/防盗链/book.type设置 | `references/comic.md` |
+| 实战模式：多线路分流/多类型书源/图片解密/登录系统/动态发现页 | `references/patterns.md` |
+| legado-debug.py脚本疑问 | `scripts/README.md` |
