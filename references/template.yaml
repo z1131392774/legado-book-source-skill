@@ -289,7 +289,7 @@ ruleContent:
   # 正文源正则，用于从网页源码中匹配正文内容
   sourceRegex: ""
 
-  # 图片默认样式: "DEFAULT"(默认居中) 或 "FULL"(最大宽度)
+  # 图片默认样式: "DEFAULT"(默认居中) 或 "FULL"(最大宽度)，漫画书源必须使用"FULL"
   # 图片链接支持:
   #   click: 点击图片执行JS  例: <img src="url,{"click":"java.toast('hi')"}">
   #   headers: 自定义请求头  例: <img src="url+","+JSON.stringify({"headers":{"UA":"..."}})">
