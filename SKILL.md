@@ -44,7 +44,7 @@ digraph tdd {
 ### Phase 0: 初始化
 
 ```
-cp ./references/template.yaml ./booksource/书源名.yaml
+cp ./references/template.yaml ./书源名.yaml
 ```
 
 阅读`./references/basics.md`，然后填写模板基础信息：
@@ -54,7 +54,6 @@ cp ./references/template.yaml ./booksource/书源名.yaml
 
 **注意**：不要删除 YAML 中的字段，空字符串 `""` 表示待填写。
 
-填写完基础信息后，询问用户接下来要填写：搜索页、发现页、或两者都填。
 
 ### Phase 1-N: 每个标签页的 TDD 循环
 
@@ -64,7 +63,7 @@ cp ./references/template.yaml ./booksource/书源名.yaml
 
 #### 🔴 RED: 定义预期
 
-用浏览器打开目标网页（可使用 chrome-devtools 或其他浏览器工具），找到一本具体书籍，**在编写任何选择器之前**，记录预期提取结果：
+打开目标网页，找到一本具体书籍，**在编写任何选择器之前**，记录预期提取结果：
 
 | 字段 | 预期值 |
 |------|--------|
@@ -78,10 +77,10 @@ cp ./references/template.yaml ./booksource/书源名.yaml
 #### 🟢 GREEN: 编写规则并验证
 
 1. 将选择器写入 YAML 对应字段
-2. 运行调试脚本：
+2. 根据正在编写的标签页对应地运行调试脚本：
 
 ```bash
-python3 scripts/legado-debug.py --host <手机IP> --source ~/booksource/书源名.yaml --key "<调试内容>" -q
+python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --key "<调试内容>" -q
 ```
 
 `--key` 格式：
@@ -97,7 +96,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source ~/booksource/书源�
 3. **检查退出码**：`0` = 成功，`1` = 失败
 4. **对比输出与预期值**
 
-**不匹配时**：用 `<js>java.log(result);</js>` 打印上下文数据结构，确认数据结构后再针对性修改选择器。**禁止盲目修改选择器。**
+**不匹配时**：用 `<js>java.log(result);</js>` 添加调试日志，确认输入输出后再针对性修改选择器。**禁止盲目修改选择器。**
 
 #### 🔵 REFACTOR: 优化
 
@@ -110,7 +109,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source ~/booksource/书源�
 所有标签页调试通过后：
 
 ```bash
-python3 scripts/legado-debug.py --host <手机IP> --source ~/booksource/书源名.yaml --save-only
+python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --save-only
 ```
 
 ## 合理化借口 vs 现实
@@ -144,8 +143,8 @@ python3 scripts/legado-debug.py --host <手机IP> --source ~/booksource/书源�
 | 问题 | 解决 |
 |------|------|
 | String.replace 歧义 | `String(obj).replace(...)` |
-| 选择器无效 | 检查 HTML 实际结构 |
-| 调试无响应 | 手机锁屏，提醒用户解锁 |
+| 选择器无效 | 手机端html结构与PC端不符，更换UA/未使用`类型@名称`来提取属性/被反爬拦截（见 references/troubleshoot.md） |
+| 调试超时/无响应 | 手机锁屏，提醒用户解锁 |
 | 搜索不到 | 请求头加 charset |
 
 ### 调试脚本
@@ -165,7 +164,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 | 场景 | 加载文件 |
 |------|----------|
 | 写发现页（JSON格式/按钮/交互） | `references/discovery.md` |
-| 规则写了但获取不到内容（反爬/webView/webJs/CF盾/字体/图片解密） | `references/troubleshoot.md` |
+| 规则写了但获取不到内容（更换UA/反爬/webView/webJs/CF盾/字体/图片解密） | `references/troubleshoot.md` |
 | 登录/回调/按钮交互 | `references/login.md` |
 | JS API与URL选项参考（java.*/book/chapter/cookie/cache） | `references/js-api.md` |
 | 漫画书源（正文规则/加密解密/防盗链） | `references/comic.md` |
