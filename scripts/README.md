@@ -61,31 +61,31 @@ python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json
 
 **2. 指定搜索关键字**
 ```bash
-python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --key "斗破苍穹"
+python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --key="斗破苍穹"
 ```
 
 **3. 调试发现页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key "月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}"
+  --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}"
 ```
 
 **4. 调试详情页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key "https://m.bbiqudu.com/75_75519/"
+  --key="https://m.bbiqudu.com/75_75519/"
 ```
 
 **5. 调试目录页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key "++https://m.bbiqudu.com/75_75519/1/"
+  --key="++https://m.bbiqudu.com/75_75519/1/"
 ```
 
 **6. 调试正文页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key "--https://m.bbiqudu.com/75_75519/1.html"
+  --key="--https://m.bbiqudu.com/75_75519/1.html"
 ```
 
 **7. 通过代理连接**
@@ -101,7 +101,7 @@ python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json
 
 **9. RSS 源调试**
 ```bash
-python3 scripts/legado-debug.py --host 192.168.137.157 --source ./rss.json --key "科技" --rss
+python3 scripts/legado-debug.py --host 192.168.137.157 --source ./rss.json --key="科技" --rss
 ```
 
 ## 退出码
