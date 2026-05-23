@@ -4,22 +4,22 @@ Legado 书源调试脚本 (纯 stdlib，YAML 支持需 pip install pyyaml)
 
 用法:
   # 调试搜索 (支持 .json / .yaml / .yml)
-  python3 legado-debug.py --host 192.168.1.100 --port 1122 --source ./my_source.yaml --key="系统"
+  python3 legado-debug.py --host 192.168.1.100 --port 1122 --source ./my_source.yaml --key="系统" --phase 1
 
   # 调试发现页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}"
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}" --phase 2
 
   # 调试详情页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="https://m.qidian.com/book/1015609210"
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="https://m.qidian.com/book/1015609210" --phase 3
 
   # 调试目录页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="++https://www.zhaishuyuan.com/read/30394"
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="++https://www.zhaishuyuan.com/read/30394" --phase 4
 
   # 调试正文页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="--https://www.zhaishuyuan.com/chapter/30394/20940996"
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="--https://www.zhaishuyuan.com/chapter/30394/20940996" --phase 5
 
   # RSS 源调试
-  python3 legado-debug.py --host 192.168.1.100 --source ./rss_source.json --key="科技" --rss
+  python3 legado-debug.py --host 192.168.1.100 --source ./rss_source.json --key="科技" --phase 1 --rss
 
   # 仅保存书源（不调试）
   python3 legado-debug.py --host 192.168.1.100 --source ./my_source.yaml --save-only
@@ -294,6 +294,28 @@ _REMINDER = (
 )
 
 
+_PHASE_NAMES = {1: "搜索", 2: "发现", 3: "详情", 4: "目录", 5: "正文"}
+
+
+def _check_phase_prerequisite(phase: int):
+    """检查前置阶段是否至少运行过 1 次，未通过则报错退出。"""
+    if phase < 1 or phase > 5:
+        print(f"错误: --phase 参数必须在 1-5 之间，收到 {phase}", file=sys.stderr)
+        sys.exit(1)
+    if phase == 1:
+        return
+    prev = phase - 1
+    state = _load_state()
+    if state.get(str(prev), 0) == 0:
+        name = _PHASE_NAMES.get(phase, str(phase))
+        prev_name = _PHASE_NAMES.get(prev, str(prev))
+        print(
+            f"错误: 阶段{phase}({name})必须在阶段{prev}({prev_name})至少运行 1 次之后才能执行",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 def _check_phase_reminder(phase: int) -> str | None:
     """递增阶段计数，如果达到3的倍数则返回提醒文本"""
     state = _load_state()
@@ -408,7 +430,7 @@ def main():
         "--phase",
         type=int,
         required=True,
-        help="当前阶段序号 (记录调用次数，每3次触发反思提示)",
+        help="当前阶段序号 1-5 (1=搜索 2=发现 3=详情 4=目录 5=正文，记录调用次数)",
     )
     args = parser.parse_args()
 
@@ -472,6 +494,9 @@ def main():
             sys.exit(1)
         return
 
+    # 前置阶段检查：2-5 必须先通过前一个阶段
+    _check_phase_prerequisite(args.phase)
+
     # 确定调试 key
     key = args.key
     if not key:
@@ -514,6 +539,7 @@ def main():
         success = True
 
     # 阶段调用次数提醒
+    sys.stdout.flush()
     reminder = _check_phase_reminder(args.phase)
     if reminder:
         print(reminder, file=sys.stderr)

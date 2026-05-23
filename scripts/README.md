@@ -38,7 +38,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 | `--rss`          | 否          | 调试订阅源（默认调试书源）            |
 | `--proxy`        | 无          | HTTP 代理，如 `http://127.0.0.1:7898` |
 | `--save-only`    | 否          | 仅保存书源到 App，不调试              |
-| `--phase`        | `0`         | 阶段序号 (1-4)，记录调用次数，每3次触发反思提示 |
+| `--phase`        | `0`         | 阶段序号 (1-5)，记录调用次数，每3次触发反思提示 |
 
 ## `--key` 格式（决定调试类型）
 
@@ -56,42 +56,42 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 
 **1. 搜索调试（最常用）**
 ```bash
-python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json
+python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --phase 1
 ```
 
 **2. 指定搜索关键字**
 ```bash
-python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --key="斗破苍穹"
+python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --key="斗破苍穹" --phase 1
 ```
 
 **3. 调试发现页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}"
+  --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}" --phase 2
 ```
 
 **4. 调试详情页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key="https://m.bbiqudu.com/75_75519/"
+  --key="https://m.bbiqudu.com/75_75519/" --phase 3
 ```
 
 **5. 调试目录页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key="++https://m.bbiqudu.com/75_75519/1/"
+  --key="++https://m.bbiqudu.com/75_75519/1/" --phase 4
 ```
 
 **6. 调试正文页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key="--https://m.bbiqudu.com/75_75519/1.html"
+  --key="--https://m.bbiqudu.com/75_75519/1.html" --phase 5
 ```
 
 **7. 通过代理连接**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --proxy http://127.0.0.1:7898
+  --proxy http://127.0.0.1:7898 --phase 1
 ```
 
 **8. 仅保存书源（不调试）**
@@ -101,7 +101,7 @@ python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json
 
 **9. RSS 源调试**
 ```bash
-python3 scripts/legado-debug.py --host 192.168.137.157 --source ./rss.json --key="科技" --rss
+python3 scripts/legado-debug.py --host 192.168.137.157 --source ./rss.json --key="科技" --phase 1 --rss
 ```
 
 ## 退出码
