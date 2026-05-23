@@ -407,7 +407,7 @@ def main():
     parser.add_argument(
         "--phase",
         type=int,
-        default=0,
+        required=True,
         help="当前阶段序号 (记录调用次数，每3次触发反思提示)",
     )
     args = parser.parse_args()
@@ -514,10 +514,9 @@ def main():
         success = True
 
     # 阶段调用次数提醒
-    if args.phase:
-        reminder = _check_phase_reminder(args.phase)
-        if reminder:
-            print(reminder, file=sys.stderr)
+    reminder = _check_phase_reminder(args.phase)
+    if reminder:
+        print(reminder, file=sys.stderr)
 
     sys.exit(0 if success else 1)
 

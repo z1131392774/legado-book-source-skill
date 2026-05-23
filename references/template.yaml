@@ -45,11 +45,12 @@ customOrder: 0
 #   proxy: socks5://127.0.0.1:1080 (不支持需要验证的socks5)
 #   proxy: http://127.0.0.1:1080@用户名@密码
 # 格式: json
-# 例:
-#   header: '@js:
-# JSON.stringify({
-# "User-Agent": java.getWebViewUA()
-# })'
+# 例（获取手机UA）：
+#   header: |
+#     @js:
+#     JSON.stringify({
+#     "User-Agent": java.getWebViewUA()
+#     })
 header: ''
 
 # 并发率限制，单位ms，两种格式:
