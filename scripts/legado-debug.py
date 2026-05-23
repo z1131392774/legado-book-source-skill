@@ -263,6 +263,49 @@ def save_rss_source(
         return {"isSuccess": False, "errorMsg": f"请求异常: {e}"}
 
 
+# ─── 状态管理 ──────────────────────────────────────────────────────────────────
+
+STATE_FILE = ".legado-debug-state.json"
+
+
+def _load_state() -> dict:
+    """读取调用次数状态文件"""
+    if not os.path.isfile(STATE_FILE):
+        return {}
+    try:
+        with open(STATE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+
+def _save_state(state: dict):
+    """写入调用次数状态文件"""
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False)
+
+
+_REMINDER = (
+    "⚠️ 本阶段已调试 {count} 次，请确认以下事项：\n"
+    "1. 是否已加载 legado-book-source skill？若上下文中缺少 skill 指令，请使用 skill 工具重新加载\n"
+    "2. 是否遵循了 TDD 循环：先定义预期值 → 再编写选择器 → 调试验证通过 → 才进入下一阶段\n"
+    "3. 调试失败时：先用 java.log() 在 JS 规则中打印变量排查，勿盲目修改选择器\n"
+    "4. 所有调试、排错、发现页、登录等参考文档在 references/ 目录中，请按需查阅"
+)
+
+
+def _check_phase_reminder(phase: int) -> str | None:
+    """递增阶段计数，如果达到3的倍数则返回提醒文本"""
+    state = _load_state()
+    key = str(phase)
+    count = state.get(key, 0) + 1
+    state[key] = count
+    _save_state(state)
+    if count > 0 and count % 3 == 0:
+        return _REMINDER.format(count=count)
+    return None
+
+
 # ─── 调试 ─────────────────────────────────────────────────────────────────────
 
 
@@ -361,6 +404,12 @@ def main():
     parser.add_argument(
         "--proxy", default="", help="HTTP 代理地址，如 http://127.0.0.1:7898"
     )
+    parser.add_argument(
+        "--phase",
+        type=int,
+        default=0,
+        help="当前阶段序号 (记录调用次数，每3次触发反思提示)",
+    )
     args = parser.parse_args()
 
     # 端口推算
@@ -416,6 +465,8 @@ def main():
         if result.get("isSuccess"):
             name = source_json.get("sourceName" if args.rss else "bookSourceName", "")
             print(f"✓ 书源「{name}」保存成功")
+            if os.path.isfile(STATE_FILE):
+                os.remove(STATE_FILE)
         else:
             print(f"✗ 保存失败: {result.get('errorMsg', '未知错误')}", file=sys.stderr)
             sys.exit(1)
@@ -461,6 +512,12 @@ def main():
     # 如果最后一条消息包含 "解析完成" 则成功
     if messages and any("解析完成" in m for m in messages[-3:]):
         success = True
+
+    # 阶段调用次数提醒
+    if args.phase:
+        reminder = _check_phase_reminder(args.phase)
+        if reminder:
+            print(reminder, file=sys.stderr)
 
     sys.exit(0 if success else 1)
 

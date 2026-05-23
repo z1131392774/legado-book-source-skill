@@ -44,10 +44,12 @@ customOrder: 0
 #   proxy: http://127.0.0.1:1080
 #   proxy: socks5://127.0.0.1:1080 (不支持需要验证的socks5)
 #   proxy: http://127.0.0.1:1080@用户名@密码
-#   无意义请求头（以下会被Legado忽略）: Accept, Accept-Encoding, Accept-Language, Cache-Control, Connection, Host, Upgrade-Insecure-Requests, Content-Length, Content-Encoding, Sec- 开头, X- 开头
 # 格式: json
 # 例:
-#   header: '{"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}'
+#   header: '@js:
+# JSON.stringify({
+# "User-Agent": java.getWebViewUA()
+# })'
 header: ''
 
 # 并发率限制，单位ms，两种格式:

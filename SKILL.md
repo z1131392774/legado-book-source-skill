@@ -43,9 +43,7 @@ digraph tdd {
 
 ### Phase 0: 初始化
 
-```
-cp ./references/template.yaml ./书源名.yaml
-```
+在当前工作目录下，将 `./references/template.yaml` 复制到当前目录下并更名为 `<书源名>.yaml`。
 
 在开始写规则/运行调试脚本之前，先向用户询问其 `<手机IP>`（用于 `--host <手机IP>`），并确认手机与本机同一网络且手机端 Legado 允许访问/调试。
 
@@ -81,8 +79,10 @@ cp ./references/template.yaml ./书源名.yaml
 1. 将选择器写入 YAML 对应字段（仅在该字段已有预期值时）
 2. 根据正在编写的标签页对应地运行调试脚本，注意调试脚本会受各种因素影响导致执行时间较长，调用时应按情况设置超时时间在15-60秒之间：
 
+**必须传入 `--phase` 参数**：搜索/发现=1，详情=2，目录=3，正文=4。
+
 ```bash
-python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --key="<调试内容>"
+python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --key="<调试内容>" --phase <阶段序号>
 ```
 
 **STOP**：若脚本未能正常执行（命令不存在/依赖缺失/连接失败/超时/无法访问 `<手机IP>`），这是环境/网络问题：先排查网络/代理/请求头/手机端状态，必要时请求用户检查手机端 Legado 是否可用。
