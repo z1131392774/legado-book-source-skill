@@ -38,7 +38,6 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 | `--rss`          | 否          | 调试订阅源（默认调试书源）            |
 | `--proxy`        | 无          | HTTP 代理，如 `http://127.0.0.1:7898` |
 | `--save-only`    | 否          | 仅保存书源到 App，不调试              |
-| `--quiet` / `-q` | 否          | 静默模式，只输出调试结果              |
 
 ## `--key` 格式（决定调试类型）
 

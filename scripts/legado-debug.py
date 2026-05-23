@@ -361,10 +361,6 @@ def main():
     parser.add_argument(
         "--proxy", default="", help="HTTP 代理地址，如 http://127.0.0.1:7898"
     )
-    parser.add_argument(
-        "--quiet", "-q", action="store_true", help="静默模式，只输出调试结果"
-    )
-
     args = parser.parse_args()
 
     # 端口推算
@@ -405,8 +401,6 @@ def main():
         if len(source_json) == 0:
             print("错误: JSON 数组为空", file=sys.stderr)
             sys.exit(1)
-        if not args.quiet:
-            print(f"注意: JSON 数组包含 {len(source_json)} 个源，使用第一个")
         source_json = source_json[0]
 
     # 仅保存模式
@@ -436,18 +430,6 @@ def main():
             key = source_json.get("ruleSearch", {}).get("checkKeyWord", "")
         if not key:
             key = "我的"
-            if not args.quiet:
-                print(f"未指定 --key，使用默认关键字: {key}")
-
-    if not args.quiet:
-        source_url = source_json.get("sourceUrl" if args.rss else "bookSourceUrl", "")
-        source_name = source_json.get(
-            "sourceName" if args.rss else "bookSourceName", ""
-        )
-        print(f"调试: {source_name} ({source_url})")
-        print(f"关键字: {key}")
-        print(f"连接: http://{args.host}:{http_port} / ws://{args.host}:{ws_port}")
-        print("─" * 50)
 
     # 执行调试
     try:
@@ -479,13 +461,6 @@ def main():
     # 如果最后一条消息包含 "解析完成" 则成功
     if messages and any("解析完成" in m for m in messages[-3:]):
         success = True
-
-    if not args.quiet:
-        print("─" * 50)
-        if success:
-            print("✓ 调试完成")
-        else:
-            print("✗ 调试未成功完成")
 
     sys.exit(0 if success else 1)
 

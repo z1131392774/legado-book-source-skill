@@ -82,7 +82,7 @@ cp ./references/template.yaml ./书源名.yaml
 2. 根据正在编写的标签页对应地运行调试脚本，注意调试脚本会受各种因素影响导致执行时间较长，调用时应按情况设置超时时间在15-60秒之间：
 
 ```bash
-python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --key="<调试内容>" -q
+python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --key="<调试内容>"
 ```
 
 **STOP**：若脚本未能正常执行（命令不存在/依赖缺失/连接失败/超时/无法访问 `<手机IP>`），这是环境/网络问题：先排查网络/代理/请求头/手机端状态，必要时请求用户检查手机端 Legado 是否可用。
@@ -103,6 +103,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --ke
 
 #### 🔵 REFACTOR: 优化
 
+- 使用`<js>java.log(result);</js>`进行调试
 - 检查选择器是否可以简化
 - 检查是否需要处理边界情况（缺失字段、编码问题）
 - 重新调试确认优化后仍然通过
@@ -155,7 +156,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 
 `--source` 支持 `.json`、`.yaml`、`.yml` 格式。不指定 `--key` 时自动从 `ruleSearch.checkKeyWord` 提取，为空则默认 `"我的"`。
 
-退出码：`0` = 成功，`1` = 失败。加 `-q` 静默模式。
+退出码：`0` = 成功，`1` = 失败。
 
 完整参数、示例、输出解读见 `scripts/README.md`。
 
