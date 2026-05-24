@@ -168,6 +168,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 | 规则写了但获取不到内容（更换UA/反爬/webView/webJs/CF盾/字体/图片解密） | `references/troubleshoot.md` |
 | 登录/回调/按钮交互 | `references/login.md` |
 | JS API与URL选项参考（java.*/book/chapter/cookie/cache） | `references/js-api.md` |
+| 使用 webJs 调用网站JS函数、动态渲染/加密页面、Bridge API（异步请求/加解密/文件操作） | `references/webjs.md` |
 | 漫画书源（正文规则/加密解密/防盗链） | `references/comic.md` |
 | 多模式书源（线路分流/小说漫画等多类型书源） | `references/multi.md` |
 | 调试脚本使用 | `scripts/README.md` |
