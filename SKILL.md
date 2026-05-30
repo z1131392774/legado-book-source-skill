@@ -172,3 +172,4 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 | 漫画书源（正文规则/加密解密/防盗链） | `references/comic.md` |
 | 多模式书源（线路分流/小说漫画等多类型书源） | `references/multi.md` |
 | 调试脚本使用 | `scripts/README.md` |
+| 安卓模拟器中进行调试 | `scripts/emulator-setup.md` |
