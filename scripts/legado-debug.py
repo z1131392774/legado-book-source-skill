@@ -429,7 +429,7 @@ def main():
     parser.add_argument(
         "--phase",
         type=int,
-        required=True,
+        default=0,
         help="当前阶段序号 1-5 (1=搜索 2=发现 3=详情 4=目录 5=正文，记录调用次数)",
     )
     args = parser.parse_args()
@@ -493,6 +493,11 @@ def main():
             print(f"✗ 保存失败: {result.get('errorMsg', '未知错误')}", file=sys.stderr)
             sys.exit(1)
         return
+
+    # 调试模式必须指定有效 phase
+    if args.phase < 1 or args.phase > 5:
+        print("错误: 调试模式必须指定 --phase 参数 (1-5)", file=sys.stderr)
+        sys.exit(1)
 
     # 前置阶段检查：2-5 必须先通过前一个阶段
     _check_phase_prerequisite(args.phase)
