@@ -61,7 +61,7 @@ concurrentRate: ""
 
 # ==================== 登录设置 ====================
 
-# 登录URL，可填写登录链接或实现登录UI逻辑的JavaScript
+# 登录URL，可填写登录链接或实现登录UI逻辑的JavaScript。支持@js: 和<js>前缀（会自动剥离）
 # JS中可用: source.getLoginInfo(), source.getLoginInfoMap(), source.putLoginInfo()
 loginUrl: ""
 
@@ -75,12 +75,12 @@ loginUrl: ""
 #     type: password
 loginUi: ""
 
-# 登录检测JS，检查是否已登录，返回true表示已登录
+# 登录检测JS，只接受纯JS代码，勿使用@js:或<js>前缀。检查是否已登录，返回true表示已登录
 loginCheckJs: ""
 
 # ==================== JS扩展 ====================
 
-# JS库，注入JavaScript到RhinoJs引擎，支持两种格式:
+# JS库，只接受纯JS代码，勿使用@js:或<js>前缀。注入JavaScript到RhinoJs引擎，支持两种格式:
 #   1. 直接填写JavaScript代码片段
 #   2. 引用外部JS文件:
 #        example: https://www.example.com/js/example.js
@@ -95,7 +95,7 @@ bookSourceComment: ""
 # 自定义变量说明，描述source.getVariable()/source.putVariable()的用途
 variableComment: ""
 
-# 封面解密JS，返回解密后的ByteArray
+# 封面解密JS，只接受纯JS代码，勿使用@js:或<js>前缀。返回解密后的ByteArray
 # result为待解密封面的inputStream，src为图片链接
 # AES例: java.createSymmetricCrypto("AES/CBC/PKCS5Padding", key, iv).decrypt(result)
 # XOR例:
@@ -256,10 +256,10 @@ ruleToc:
   # 更新时间选择器
   updateTime: ""
 
-  # 目录预处理JS，在解析目录前执行
+  # 目录预处理JS，只接受纯JS代码，勿使用@js:或<js>前缀。在解析目录前执行
   preUpdateJs: ""
 
-  # 格式化JS，对目录列表进行后处理
+  # 格式化JS，只接受纯JS代码，勿使用@js:或<js>前缀。对目录列表进行后处理
   formatJs: ""
 
 # ==================== 正文规则 ====================
@@ -276,7 +276,7 @@ ruleContent:
   # 下一页正文URL选择器(长章节分页时使用)
   nextContentUrl: ""
 
-  # 网页JS，在webView中加载正文页后执行的JavaScript
+  # 网页JS，只接受纯JS代码，勿使用@js:或<js>前缀。在webView中加载正文页后执行的JavaScript
   # 可用: window.close() 关闭浏览器, screen.orientation.lock() 控制屏幕方向
   webJs: ""
 
@@ -300,17 +300,17 @@ ruleContent:
   #   style: 样式(full/single/left/right/text)，大写TEXT占1.5字符位
   imageStyle: ""
 
-  # 图片解密JS，返回解密后的ByteArray
+  # 图片解密JS，只接受纯JS代码，勿使用@js:或<js>前缀。返回解密后的ByteArray
   # result为待解密图片的ByteArray，src为图片链接
   # 例: java.createSymmetricCrypto("AES/CBC/PKCS5Padding", key, iv).decrypt(result)
   imageDecode: ""
 
-  # 购买操作，可填写链接或JavaScript
+  # 购买操作，只接受纯JS代码，勿使用@js:或<js>前缀。可填写链接或JavaScript
   # 执行结果是网络链接则自动打开浏览器
   # JS返回true则自动刷新目录和当前章节
   payAction: ""
 
-  # 事件回调JS，需先启用eventListener
+  # 事件回调JS，只接受纯JS代码，勿使用@js:或<js>前缀。需先启用eventListener
   # 可用事件: clickBookName, clickAuthor, clickCustomButton等
   # result为事件内容，event为事件名称
   # 返回true可消费事件(阻止默认操作)

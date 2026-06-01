@@ -294,6 +294,39 @@ _REMINDER = (
 )
 
 
+# 只接受纯 JS 代码的字段（不含 loginUrl，它有自己的 getLoginJs() 做剥离）
+_RAW_JS_FIELDS = [
+    ("jsLib", []),
+    ("loginCheckJs", []),
+    ("coverDecodeJs", []),
+    ("ruleToc", ["preUpdateJs"]),
+    ("ruleToc", ["formatJs"]),
+    ("ruleContent", ["webJs"]),
+    ("ruleContent", ["imageDecode"]),
+    ("ruleContent", ["payAction"]),
+    ("ruleContent", ["callBackJs"]),
+]
+
+
+def _validate_raw_js_fields(source: dict) -> list[str]:
+    """检测只接受纯 JS 的字段是否误写了 @js: / <js> 前缀。返回错误列表。"""
+    errors = []
+    for parent, keys in _RAW_JS_FIELDS:
+        container = source.get(parent, {}) if keys else source
+        if not isinstance(container, dict):
+            continue
+        for key in keys:
+            val = container.get(key, "")
+            if not val or not isinstance(val, str):
+                continue
+            if val.startswith("@js:") or val.startswith("<js>"):
+                path = f"{parent}.{key}" if keys else key
+                errors.append(
+                    f'字段 "{path}" 只接受纯 JS 代码，不能以 @js: 或 <js> 开头，请去掉前缀'
+                )
+    return errors
+
+
 def _check_phase_reminder(phase: int) -> str | None:
     """递增阶段计数，如果达到3的倍数则返回提醒文本"""
     state = _load_state()
@@ -451,6 +484,13 @@ def main():
             print("错误: JSON 数组为空", file=sys.stderr)
             sys.exit(1)
         source_json = source_json[0]
+
+    # 检测只接受纯 JS 的字段是否误写了 @js: / <js>
+    raw_js_errors = _validate_raw_js_fields(source_json)
+    if raw_js_errors:
+        for err in raw_js_errors:
+            print(f"错误: {err}", file=sys.stderr)
+        sys.exit(1)
 
     # 仅保存模式
     if args.save_only:
