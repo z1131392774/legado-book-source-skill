@@ -44,48 +44,48 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 
 | key 格式      | 调试类型  | 示例                                                         |
 | ------------- | --------- | ------------------------------------------------------------ |
+| `--URL`       | 正文页    | `"--https://www.zhaishuyuan.com/chapter/30394/20940996"`     |
+| `++URL`       | 目录页    | `"++https://www.zhaishuyuan.com/read/30394"`                 |
+| 完整 URL      | 详情页    | `"https://m.qidian.com/book/1015609210"`                     |
 | 普通文本      | 搜索      | `"系统"`                                                     |
 | `分类名::URL` | 发现/探索 | `"月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}"` |
-| 完整 URL      | 详情页    | `"https://m.qidian.com/book/1015609210"`                     |
-| `++URL`       | 目录页    | `"++https://www.zhaishuyuan.com/read/30394"`                 |
-| `--URL`       | 正文页    | `"--https://www.zhaishuyuan.com/chapter/30394/20940996"`     |
 
 不指定 `--key` 时，自动从书源的 `ruleSearch.checkKeyWord` 提取；若为空则默认 `"我的"`。
 
 ## 典型用法
 
-**1. 搜索调试（最常用）**
-```bash
-python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --phase 1
-```
-
-**2. 指定搜索关键字**
-```bash
-python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --key="斗破苍穹" --phase 1
-```
-
-**3. 调试发现页**
+**1. 调试正文页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}" --phase 2
+  --key="--https://m.bbiqudu.com/75_75519/1.html" --phase 1
 ```
 
-**4. 调试详情页**
+**2. 调试目录页**
+```bash
+python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
+  --key="++https://m.bbiqudu.com/75_75519/1/" --phase 2
+```
+
+**3. 调试详情页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
   --key="https://m.bbiqudu.com/75_75519/" --phase 3
 ```
 
-**5. 调试目录页**
+**4. 调试搜索**
 ```bash
-python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key="++https://m.bbiqudu.com/75_75519/1/" --phase 4
+python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --phase 4
 ```
 
-**6. 调试正文页**
+**5. 指定搜索关键字**
+```bash
+python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json --key="斗破苍穹" --phase 4
+```
+
+**6. 调试发现页**
 ```bash
 python3 scripts/legado-debug.py --host 192.168.137.157 --source ./my_source.json \
-  --key="--https://m.bbiqudu.com/75_75519/1.html" --phase 5
+  --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}" --phase 5
 ```
 
 **7. 通过代理连接**

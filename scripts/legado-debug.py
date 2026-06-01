@@ -3,20 +3,20 @@
 Legado 书源调试脚本 (纯 stdlib，YAML 支持需 pip install pyyaml)
 
 用法:
-  # 调试搜索 (支持 .json / .yaml / .yml)
-  python3 legado-debug.py --host 192.168.1.100 --port 1122 --source ./my_source.yaml --key="系统" --phase 1
+  # 调试正文页 (支持 .json / .yaml / .yml)
+  python3 legado-debug.py --host 192.168.1.100 --port 1122 --source ./my_source.yaml --key="--https://www.zhaishuyuan.com/chapter/30394/20940996" --phase 1
 
-  # 调试发现页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}" --phase 2
+  # 调试目录页
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="++https://www.zhaishuyuan.com/read/30394" --phase 2
 
   # 调试详情页
   python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="https://m.qidian.com/book/1015609210" --phase 3
 
-  # 调试目录页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="++https://www.zhaishuyuan.com/read/30394" --phase 4
+  # 调试搜索
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.yaml --key="系统" --phase 4
 
-  # 调试正文页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="--https://www.zhaishuyuan.com/chapter/30394/20940996" --phase 5
+  # 调试发现页
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}" --phase 5
 
   # RSS 源调试
   python3 legado-debug.py --host 192.168.1.100 --source ./rss_source.json --key="科技" --phase 1 --rss
@@ -445,7 +445,7 @@ def main():
         "--phase",
         type=int,
         default=0,
-        help="当前阶段序号 1-5 (1=搜索 2=发现 3=详情 4=目录 5=正文，记录调用次数)",
+        help="当前阶段序号 1-5 (1=正文 2=目录 3=详情 4=搜索 5=发现，记录调用次数)",
     )
     args = parser.parse_args()
 
