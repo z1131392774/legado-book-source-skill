@@ -19,6 +19,7 @@ description: Use when creating, editing, or debugging Legado book source rules. 
 - 不要跳过调试"因为网络超时"——检查网络/代理/请求头，等待重试
 - 不要批量写完所有规则再调试——每个标签页单独验证
 - 不要调试失败后直接改选择器——先用 `java.log()` 排查
+- 不要删除模板中的注释
 
 **违反字面规则就是违反精神规则。**
 
@@ -52,7 +53,7 @@ digraph tdd {
 - `bookSourceUrl`
 - `bookSourceType`
 
-**注意**：不要删除 YAML 中的字段，空字符串 `""` 表示待填写。
+**注意**：不要删除 YAML 中的字段，空字符串 `""` 表示待填写。**不要删除任何注释**——注释包含各字段的用法约束（如是否接受 JS 标记、格式要求等），删除后将导致填写错误。
 
 
 ### Phase 1-N: 每个标签页的 TDD 循环
