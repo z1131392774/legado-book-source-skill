@@ -1,11 +1,24 @@
 ---
 name: legado-book-source
-description: Use when creating, editing, or debugging Legado book source rules. Triggers：创建书源、编写源规则、修复书源、书源调试、Legado配置、订阅源、替换净化规则。Also use when about to write selectors without defining expected output, or about to skip debugging, or about to batch-write rules before testing any.
+description: Use when creating, editing, continuing, reviewing, or debugging Legado book source rules, including follow-up turns after this skill was already used. Triggers：创建书源、编写源规则、修复书源、继续调试书源、书源调试、Legado配置、订阅源、替换净化规则。Also use when about to write selectors without defining expected output, or about to skip debugging, or about to batch-write rules before testing any. On every debugging iteration, re-read this skill and the relevant references instead of relying on earlier context.
 ---
 
 # Legado 书源创建（TDD 驱动）
 
 通过「定义预期 → 编写规则 → 调试验证」的 TDD 循环创建书源规则。
+
+## 强制重读协议
+
+**每一轮书源创建/修改/继续调试都必须重新加载最近上下文。不要凭前文记忆写规则。**
+
+在编写、修改、解释任何规则之前：
+
+1. 重新阅读本 `SKILL.md`
+2. 阅读 `references/index.md`
+3. 按 `references/index.md` 的路由读取本轮失败阶段/规则类型对应的参考文件
+4. 在回复或调试记录中明确写出本轮重新读取了哪些参考文件
+
+若用户说“继续”“还是不行”“刚才那个源”“接着调试”，仍然视为新一轮调试，必须执行以上步骤。
 
 ## 铁律
 
@@ -48,7 +61,7 @@ digraph tdd {
 
 在开始写规则/运行调试脚本之前，先向用户询问其 `<手机IP>`（用于 `--host <手机IP>`），并确认手机与本机同一网络且手机端 Legado 允许访问/调试。
 
-阅读`./references/basics.md`，然后填写模板基础信息：
+阅读 `./references/index.md` 和 `./references/basics.md`，然后填写模板基础信息：
 - `bookSourceName`
 - `bookSourceUrl`
 - `bookSourceType`
@@ -61,6 +74,20 @@ digraph tdd {
 标签页顺序：正文 → 目录 → 详情 → 搜索 → 发现
 
 每个标签页严格按以下循环执行：
+
+#### 每轮开始：刷新参考
+
+先重新阅读 `references/index.md`，再按当前阶段和问题类型读取对应参考文件。至少需要：
+
+- 正文/目录/详情/搜索的选择器和字段：`references/basics.md`
+- 调试脚本参数、阶段、输出解读：`scripts/README.md`
+- 获取不到内容、反爬、WebView、编码、请求头：`references/troubleshoot.md`
+- JS/API/URL 选项/cookie/cache/java.*：`references/js-api.md`
+- webJs/动态渲染/站点 JS 调用：`references/webjs.md`
+- 登录/按钮/回调/变量持久化：`references/login.md`
+- 发现页：`references/discovery.md`
+- 漫画书源：`references/comic.md`
+- 高级复用模式：`references/patterns.md`
 
 #### 🔴 RED: 定义预期
 
@@ -163,8 +190,11 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 
 ## 按需加载
 
+先读 `references/index.md`，再按下表加载具体文件。
+
 | 场景 | 加载文件 |
 |------|----------|
+| 每轮开始/继续调试/不确定该看什么 | `references/index.md` |
 | 写发现页（JSON格式/按钮/交互） | `references/discovery.md` |
 | 规则写了但获取不到内容（更换UA/反爬/webView/webJs/CF盾/字体/图片解密） | `references/troubleshoot.md` |
 | 登录/回调/按钮交互 | `references/login.md` |

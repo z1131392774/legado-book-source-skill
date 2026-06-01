@@ -117,7 +117,6 @@ customButton: false
 # 格式2 (可自定义样式或控件，用户要求时使用): 见`./references/discovery.md`
 # 必须使用{{page}}
 exploreUrl: ""
-
 # 发现筛选规则，JSON格式
 exploreScreen: ""
 
