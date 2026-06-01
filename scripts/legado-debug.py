@@ -295,10 +295,11 @@ _REMINDER = (
 
 
 # 只接受纯 JS 代码的字段（不含 loginUrl，它有自己的 getLoginJs() 做剥离）
+# tuple 格式: (父级键, [子键列表])，父级为 None 表示顶层字段，子键列表只有一个元素
 _RAW_JS_FIELDS = [
-    ("jsLib", []),
-    ("loginCheckJs", []),
-    ("coverDecodeJs", []),
+    (None, ["jsLib"]),
+    (None, ["loginCheckJs"]),
+    (None, ["coverDecodeJs"]),
     ("ruleToc", ["preUpdateJs"]),
     ("ruleToc", ["formatJs"]),
     ("ruleContent", ["webJs"]),
@@ -312,15 +313,18 @@ def _validate_raw_js_fields(source: dict) -> list[str]:
     """检测只接受纯 JS 的字段是否误写了 @js: / <js> 前缀。返回错误列表。"""
     errors = []
     for parent, keys in _RAW_JS_FIELDS:
-        container = source.get(parent, {}) if keys else source
-        if not isinstance(container, dict):
-            continue
+        if parent is None:
+            container = source
+        else:
+            container = source.get(parent, {})
+            if not isinstance(container, dict):
+                continue
         for key in keys:
             val = container.get(key, "")
             if not val or not isinstance(val, str):
                 continue
             if val.startswith("@js:") or val.startswith("<js>"):
-                path = f"{parent}.{key}" if keys else key
+                path = f"{parent}.{key}" if parent else key
                 errors.append(
                     f'字段 "{path}" 只接受纯 JS 代码，不能以 @js: 或 <js> 开头，请去掉前缀'
                 )
