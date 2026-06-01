@@ -294,28 +294,6 @@ _REMINDER = (
 )
 
 
-_PHASE_NAMES = {1: "搜索", 2: "发现", 3: "详情", 4: "目录", 5: "正文"}
-
-
-def _check_phase_prerequisite(phase: int):
-    """检查前置阶段是否至少运行过 1 次，未通过则报错退出。"""
-    if phase < 1 or phase > 5:
-        print(f"错误: --phase 参数必须在 1-5 之间，收到 {phase}", file=sys.stderr)
-        sys.exit(1)
-    if phase == 1:
-        return
-    prev = phase - 1
-    state = _load_state()
-    if state.get(str(prev), 0) == 0:
-        name = _PHASE_NAMES.get(phase, str(phase))
-        prev_name = _PHASE_NAMES.get(prev, str(prev))
-        print(
-            f"错误: 阶段{phase}({name})必须在阶段{prev}({prev_name})至少运行 1 次之后才能执行",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-
 def _check_phase_reminder(phase: int) -> str | None:
     """递增阶段计数，如果达到3的倍数则返回提醒文本"""
     state = _load_state()
@@ -498,9 +476,6 @@ def main():
     if args.phase < 1 or args.phase > 5:
         print("错误: 调试模式必须指定 --phase 参数 (1-5)", file=sys.stderr)
         sys.exit(1)
-
-    # 前置阶段检查：2-5 必须先通过前一个阶段
-    _check_phase_prerequisite(args.phase)
 
     # 确定调试 key
     key = args.key
