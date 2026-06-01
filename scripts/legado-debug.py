@@ -265,15 +265,19 @@ def save_rss_source(
 
 # ─── 状态管理 ──────────────────────────────────────────────────────────────────
 
-STATE_FILE = ".legado-debug-state.json"
+
+def _state_file() -> str:
+    """状态文件放在脚本所在目录"""
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), ".legado-debug-state.json")
 
 
 def _load_state() -> dict:
     """读取调用次数状态文件"""
-    if not os.path.isfile(STATE_FILE):
+    sf = _state_file()
+    if not os.path.isfile(sf):
         return {}
     try:
-        with open(STATE_FILE, "r", encoding="utf-8") as f:
+        with open(sf, "r", encoding="utf-8") as f:
             return json.load(f)
     except (json.JSONDecodeError, IOError):
         return {}
@@ -281,7 +285,8 @@ def _load_state() -> dict:
 
 def _save_state(state: dict):
     """写入调用次数状态文件"""
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
+    sf = _state_file()
+    with open(sf, "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False)
 
 
@@ -509,8 +514,9 @@ def main():
         if result.get("isSuccess"):
             name = source_json.get("sourceName" if args.rss else "bookSourceName", "")
             print(f"✓ 书源「{name}」保存成功")
-            if os.path.isfile(STATE_FILE):
-                os.remove(STATE_FILE)
+            sf = _state_file()
+            if os.path.isfile(sf):
+                os.remove(sf)
         else:
             print(f"✗ 保存失败: {result.get('errorMsg', '未知错误')}", file=sys.stderr)
             sys.exit(1)
