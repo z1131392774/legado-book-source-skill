@@ -288,9 +288,9 @@ def _save_state(state: dict):
 _REMINDER = (
     "⚠️ 本阶段已调试 {count} 次，请确认以下事项：\n"
     "1. 是否已加载 legado-book-source skill？若上下文中缺少 skill 指令，请使用 skill 工具重新加载\n"
-    "2. 是否遵循了 TDD 循环：先定义预期值 → 再编写选择器 → 调试验证通过 → 才进入下一阶段\n"
-    "3. 调试失败时：先用 java.log() 在 JS 规则中打印变量排查，勿盲目修改选择器\n"
-    "4. 所有调试、排错、发现页、登录等参考文档在 references/ 目录中，请按需查阅"
+    "2. 调试失败时：先用 java.log() 在 JS 规则中打印变量排查，勿盲目修改选择器\n"
+    "3. 所有调试、排错、发现页、登录等参考文档在 references/ 目录中，请按需查阅\n"
+    "4. 疑难杂症解决方法：利用subagent在references/中寻找解决方法，仍然无法达到预期，则利用subagent在legado项目代码中寻找解决方法。"
 )
 
 
