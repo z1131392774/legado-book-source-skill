@@ -359,9 +359,9 @@ def debug_source(
     key: str,
     is_rss: bool = False,
     proxy: str | None = None,
-) -> list[str]:
+) -> tuple[list[str], str | None]:
     """
-    调试书源/订阅源，返回调试消息列表。
+    调试书源/订阅源，返回 (调试消息列表, 连接错误或 None)
 
     流程:
     1. POST 保存书源到 App
@@ -382,33 +382,52 @@ def debug_source(
 
     # 2. WebSocket 调试
     ws_path = "/rssSourceDebug" if is_rss else "/bookSourceDebug"
-    sock = ws_connect(host, ws_port, ws_path, proxy=proxy)
+    try:
+        sock = ws_connect(host, ws_port, ws_path, proxy=proxy)
+    except Exception as e:
+        return [], f"WebSocket 连接失败: {e}"
 
     # 3. 发送调试请求
     if is_rss:
         msg = json.dumps({"tag": source_url, "key": key})
     else:
         msg = json.dumps({"tag": source_url, "key": key})
-    ws_send(sock, msg)
+    try:
+        ws_send(sock, msg)
+    except Exception as e:
+        try:
+            sock.close()
+        except Exception:
+            pass
+        return [], f"发送调试请求失败: {e}"
 
     # 4. 收集调试输出
     messages = []
+    conn_error = None
     try:
         while True:
-            text = ws_recv(sock)
+            try:
+                text = ws_recv(sock)
+            except socket.timeout:
+                conn_error = "连接超时，未收到任何调试消息，请检查网络连接或 Legado 是否可达"
+                break
+            except ConnectionError as e:
+                conn_error = f"连接异常中断: {e}"
+                break
             if text is None:
                 break
             if text:  # 跳过空消息 (ping/pong)
                 messages.append(text)
-    except (socket.timeout, ConnectionError):
-        pass
     finally:
         try:
             sock.close()
         except Exception:
             pass
 
-    return messages
+    if not messages and conn_error is None:
+        conn_error = "未收到任何调试消息，连接已关闭"
+
+    return messages, conn_error
 
 
 # ─── 主入口 ───────────────────────────────────────────────────────────────────
@@ -539,7 +558,7 @@ def main():
 
     # 执行调试
     try:
-        messages = debug_source(
+        messages, conn_error = debug_source(
             args.host,
             http_port,
             ws_port,
@@ -552,15 +571,16 @@ def main():
         print(f"✗ 调试失败: {e}", file=sys.stderr)
         sys.exit(1)
 
+    if conn_error:
+        print(f"✗ 网络异常: {conn_error}", file=sys.stderr)
+        sys.exit(1)
+
     # 输出结果
     success = False
     for msg in messages:
         print(msg)
         if "解析完成" in msg or "调试完成" in msg:
             success = True
-        if "错误" in msg.lower() or "失败" in msg.lower():
-            # 不立即判定失败，可能中间有错误但最终成功
-            pass
 
     # 判断最终状态: 最后一条消息包含 state 信息
     # state=-1 或 state=1000 在 WebSocket 中对应连接关闭
