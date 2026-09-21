@@ -1,24 +1,11 @@
 ---
 name: legado-book-source
-description: Use when creating, editing, continuing, reviewing, or debugging Legado book source rules, including follow-up turns after this skill was already used. Triggers：创建书源、编写源规则、修复书源、继续调试书源、书源调试、Legado配置、订阅源、替换净化规则。Also use when about to write selectors without defining expected output, or about to skip debugging, or about to batch-write rules before testing any. On every debugging iteration, re-read this skill and the relevant references instead of relying on earlier context.
+description: Use when creating, editing, continuing, reviewing, or debugging Legado book source rules, including follow-up turns after this skill was already used. Triggers：创建书源、编写源规则、修复书源、继续调试书源、书源调试、Legado配置、订阅源、替换净化规则。Also use when about to write selectors without defining expected output, or about to skip debugging, or about to batch-write rules before testing any.
 ---
 
 # Legado 书源创建（TDD 驱动）
 
 通过「定义预期 → 编写规则 → 调试验证」的 TDD 循环创建书源规则。
-
-## 强制重读协议
-
-**每一轮书源创建/修改/继续调试都必须重新加载最近上下文。不要凭前文记忆写规则。**
-
-在编写、修改、解释任何规则之前：
-
-1. 重新阅读本 `SKILL.md`
-2. 阅读 `references/index.md`
-3. 按 `references/index.md` 的路由读取本轮失败阶段/规则类型对应的参考文件
-4. 在回复或调试记录中明确写出本轮重新读取了哪些参考文件
-
-若用户说“继续”“还是不行”“刚才那个源”“接着调试”，仍然视为新一轮调试，必须执行以上步骤。
 
 ## 铁律
 
@@ -105,12 +92,10 @@ digraph tdd {
 #### 🟢 GREEN: 编写规则并验证
 
 1. 将选择器写入 YAML 对应字段（仅在该字段已有预期值时）
-2. 根据正在编写的标签页对应地运行调试脚本，注意调试脚本会受各种因素影响导致执行时间较长，调用时应按情况设置超时时间在15-60秒之间：
-
-**必须传入 `--phase` 参数**：正文=1，目录=2，详情=3，搜索=4，发现=5。
+2. 根据正在编写的标签页对应地运行调试脚本，注意调试脚本会受各种因素影响导致执行时间较长，调用时应按情况设置超时时间在15-60秒之间。
 
 ```bash
-python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --key="<调试内容>" --phase <阶段序号>
+python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --key="<调试内容>"
 ```
 
 **STOP**：若脚本未能正常执行（命令不存在/依赖缺失/连接失败/超时/无法访问 `<手机IP>`），这是环境/网络问题：先排查网络/代理/请求头/手机端状态，必要时请求用户检查手机端 Legado 是否可用。
@@ -179,7 +164,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --sa
 ### 调试脚本
 
 ```bash
-python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> --key="<调试内容>" --phase <阶段序号>
+python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> --key="<调试内容>"
 ```
 
 `--source` 支持 `.json`、`.yaml`、`.yml` 格式。不指定 `--key` 时自动从 `ruleSearch.checkKeyWord` 提取，为空则默认 `"我的"`。
@@ -201,6 +186,6 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 | JS API与URL选项参考（java.*/book/chapter/cookie/cache） | `references/js-api.md` |
 | 使用 webJs 调用网站JS函数、动态渲染/加密页面、Bridge API（异步请求/加解密/文件操作） | `references/webjs.md` |
 | 漫画书源（正文规则/加密解密/防盗链） | `references/comic.md` |
-| 多模式书源（线路分流/小说漫画等多类型书源） | `references/multi.md` |
+| 多模式书源（线路分流/小说漫画等多类型书源） | `references/patterns.md` |
 | 调试脚本使用 | `scripts/README.md` |
-| 安卓模拟器中进行调试 | `scripts/emulator-setup.md` |
+| 安卓模拟器中进行调试 | `references/emulator-setup.md` |

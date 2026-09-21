@@ -4,22 +4,22 @@ Legado 书源调试脚本 (纯 stdlib，YAML 支持需 pip install pyyaml)
 
 用法:
   # 调试正文页 (支持 .json / .yaml / .yml)
-  python3 legado-debug.py --host 192.168.1.100 --port 1122 --source ./my_source.yaml --key="--https://www.zhaishuyuan.com/chapter/30394/20940996" --phase 1
+  python3 legado-debug.py --host 192.168.1.100 --port 1122 --source ./my_source.yaml --key="--https://www.zhaishuyuan.com/chapter/30394/20940996"
 
   # 调试目录页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="++https://www.zhaishuyuan.com/read/30394" --phase 2
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="++https://www.zhaishuyuan.com/read/30394"
 
   # 调试详情页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="https://m.qidian.com/book/1015609210" --phase 3
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="https://m.qidian.com/book/1015609210"
 
   # 调试搜索
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.yaml --key="系统" --phase 4
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.yaml --key="系统"
 
   # 调试发现页
-  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}" --phase 5
+  python3 legado-debug.py --host 192.168.1.100 --source ./my_source.json --key="月票榜::https://www.qidian.com/rank/yuepiao?page={{page}}"
 
   # RSS 源调试
-  python3 legado-debug.py --host 192.168.1.100 --source ./rss_source.json --key="科技" --phase 1 --rss
+  python3 legado-debug.py --host 192.168.1.100 --source ./rss_source.json --key="科技" --rss
 
   # 仅保存书源（不调试）
   python3 legado-debug.py --host 192.168.1.100 --source ./my_source.yaml --save-only
@@ -263,42 +263,6 @@ def save_rss_source(
         return {"isSuccess": False, "errorMsg": f"请求异常: {e}"}
 
 
-# ─── 状态管理 ──────────────────────────────────────────────────────────────────
-
-
-def _state_file() -> str:
-    """状态文件放在脚本所在目录"""
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), ".legado-debug-state.json")
-
-
-def _load_state() -> dict:
-    """读取调用次数状态文件"""
-    sf = _state_file()
-    if not os.path.isfile(sf):
-        return {}
-    try:
-        with open(sf, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError):
-        return {}
-
-
-def _save_state(state: dict):
-    """写入调用次数状态文件"""
-    sf = _state_file()
-    with open(sf, "w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False)
-
-
-_REMINDER = (
-    "⚠️ 本阶段已调试 {count} 次，请确认以下事项：\n"
-    "1. 是否已加载 legado-book-source skill？若上下文中缺少 skill 指令，请使用 skill 工具重新加载\n"
-    "2. 调试失败时：先用 java.log() 在 JS 规则中打印变量排查，勿盲目修改选择器\n"
-    "3. 所有调试、排错、发现页、登录等参考文档在 references/ 目录中，请按需查阅\n"
-    "4. 疑难杂症解决方法：利用subagent在references/中寻找解决方法，仍然无法达到预期，则利用subagent在legado项目代码中寻找解决方法。"
-)
-
-
 # 只接受纯 JS 代码的字段（不含 loginUrl，它有自己的 getLoginJs() 做剥离）
 # tuple 格式: (父级键, [子键列表])，父级为 None 表示顶层字段，子键列表只有一个元素
 _RAW_JS_FIELDS = [
@@ -334,18 +298,6 @@ def _validate_raw_js_fields(source: dict) -> list[str]:
                     f'字段 "{path}" 只接受纯 JS 代码，不能以 @js: 或 <js> 开头，请去掉前缀'
                 )
     return errors
-
-
-def _check_phase_reminder(phase: int) -> str | None:
-    """递增阶段计数，如果达到3的倍数则返回提醒文本"""
-    state = _load_state()
-    key = str(phase)
-    count = state.get(key, 0) + 1
-    state[key] = count
-    _save_state(state)
-    if count > 0 and count % 3 == 0:
-        return _REMINDER.format(count=count)
-    return None
 
 
 # ─── 调试 ─────────────────────────────────────────────────────────────────────
@@ -465,12 +417,6 @@ def main():
     parser.add_argument(
         "--proxy", default="", help="HTTP 代理地址，如 http://127.0.0.1:7898"
     )
-    parser.add_argument(
-        "--phase",
-        type=int,
-        default=0,
-        help="当前阶段序号 1-5 (1=正文 2=目录 3=详情 4=搜索 5=发现，记录调用次数)",
-    )
     args = parser.parse_args()
 
     # 端口推算
@@ -533,18 +479,10 @@ def main():
         if result.get("isSuccess"):
             name = source_json.get("sourceName" if args.rss else "bookSourceName", "")
             print(f"✓ 书源「{name}」保存成功")
-            sf = _state_file()
-            if os.path.isfile(sf):
-                os.remove(sf)
         else:
             print(f"✗ 保存失败: {result.get('errorMsg', '未知错误')}", file=sys.stderr)
             sys.exit(1)
         return
-
-    # 调试模式必须指定有效 phase
-    if args.phase < 1 or args.phase > 5:
-        print("错误: 调试模式必须指定 --phase 参数 (1-5)", file=sys.stderr)
-        sys.exit(1)
 
     # 确定调试 key
     key = args.key
@@ -587,12 +525,6 @@ def main():
     # 如果最后一条消息包含 "解析完成" 则成功
     if messages and any("解析完成" in m for m in messages[-3:]):
         success = True
-
-    # 阶段调用次数提醒
-    sys.stdout.flush()
-    reminder = _check_phase_reminder(args.phase)
-    if reminder:
-        print(reminder, file=sys.stderr)
 
     sys.exit(0 if success else 1)
 
