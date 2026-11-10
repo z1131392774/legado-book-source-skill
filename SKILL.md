@@ -159,7 +159,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --sa
 | String.replace 歧义 | `String(obj).replace(...)` |
 | 选择器无效 | 手机端html结构与PC端不符，更换UA/未使用`类型@名称`来提取属性/被反爬拦截（见 references/troubleshoot.md） |
 | 调试超时/无响应 | 手机锁屏，提醒用户解锁 |
-| 搜索不到 | 请求头加 charset |
+| 搜索不到 | 中文参数按站点编码预编码，或加 `charset` 选项（见 references/js-api.md） |
 
 ### 调试脚本
 
@@ -184,6 +184,7 @@ python3 scripts/legado-debug.py --host <手机IP> --source <书源文件路径> 
 | 规则写了但获取不到内容（更换UA/反爬/webView/webJs/CF盾/字体/图片解密） | `references/troubleshoot.md` |
 | 登录/回调/按钮交互 | `references/login.md` |
 | JS API与URL选项参考（java.*/book/chapter/cookie/cache） | `references/js-api.md` |
+| 事件回调（加入书架/删除书架后自动执行、自动分组） | `references/js-api.md` |
 | 使用 webJs 调用网站JS函数、动态渲染/加密页面、Bridge API（异步请求/加解密/文件操作） | `references/webjs.md` |
 | 漫画书源（正文规则/加密解密/防盗链） | `references/comic.md` |
 | 多模式书源（线路分流/小说漫画等多类型书源） | `references/patterns.md` |

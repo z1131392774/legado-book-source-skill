@@ -19,7 +19,7 @@
 | 正文 | `references/basics.md`, `scripts/README.md` |
 | 目录 | `references/basics.md`, `scripts/README.md` |
 | 详情 | `references/basics.md`, `scripts/README.md` |
-| 搜索 | `references/basics.md`, `scripts/README.md` |
+| 搜索 | `references/basics.md`, `references/js-api.md`, `scripts/README.md` |
 | 发现 | `references/discovery.md`, `scripts/README.md` |
 | 漫画正文/图片 | `references/comic.md`, `references/basics.md` |
 | 订阅源/RSS | `references/basics.md`, `references/js-api.md` |
@@ -29,12 +29,15 @@
 | 现象 | 读取文件 |
 |------|----------|
 | 选择器无结果、字段为空、提取错字段 | `references/basics.md` |
-| 搜索无结果、乱码、URL 参数异常 | `references/basics.md`, `references/troubleshoot.md` |
+| 字段混入相邻标签的文本 | `references/basics.md` |
+| 章节页被识别为详情页 | `references/basics.md` |
+| 搜索无结果、中文关键词无效、乱码、URL 参数异常 | `references/basics.md`, `references/js-api.md`, `references/troubleshoot.md` |
 | 页面浏览器有内容但脚本拿不到 | `references/troubleshoot.md`, `references/webjs.md` |
 | 403、验证盾、跳转、反爬、需要 UA/请求头/cookie | `references/troubleshoot.md`, `references/js-api.md` |
 | JS 报错、String.replace 歧义、java.* 用法不确定 | `references/basics.md`, `references/js-api.md` |
 | WebView/webJs/动态渲染/调用网页 JS | `references/webjs.md`, `references/troubleshoot.md` |
 | 登录、按钮、回调、用户输入、变量持久化 | `references/login.md`, `references/patterns.md` |
+| 加入书架/删除书架后自动执行（自动分组、自动清理） | `references/js-api.md` |
 | 发现页 JSON、分类、按钮布局 | `references/discovery.md` |
 | 漫画图片不显示、403、防盗链、imageDecode、懒加载图片 | `references/comic.md`, `references/troubleshoot.md` |
 | 多线路、多类型、跨页面状态 | `references/patterns.md`, `references/js-api.md` |
@@ -58,7 +61,11 @@ charset
 cookie
 loginCheckJs
 java.ajax
+java.post
 java.connect
+Location
+ownText
+bookUrlPattern
 source.getVariable
 imageDecode
 Referer

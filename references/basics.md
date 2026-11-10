@@ -14,6 +14,8 @@
 
 最后一段为获取内容：`text`, `textNodes`, `ownText`, `href`, `src`, `html`, `all` 等。
 
+`text` 取元素及其所有子元素的文本，相邻标签的文本直接相连：`<span>作者：张三</span><span>3.92 MB</span>` 得到 `作者：张三3.92 MB`。取元素自身的文本用 `ownText`。
+
 正则替换：末尾加 `##正则##替换内容`，替换内容为空时第二个 `##` 可省略。
 
 多规则组合：`||` 表示或（任一匹配即可），`&&` 表示与（都要匹配）。
@@ -43,6 +45,20 @@ class.odd.0@tag.a.0@text||tag.dd.0@tag.h1@text##全文阅读
 
 规则最前面加负号 `-` 可使列表倒置，适用于目录倒序的网站。例：`-tag.dd` 获取所有 dd 标签并倒置顺序。区间反向：`tag.div[-1:0]` 也可实现反向。
 
+## 嵌套标签取文本
+
+多层嵌套的列表项（如 `<span><span>作者：张三</span>6.69 MB</span>`）按文本前缀定位目标节点：
+
+```js
+var sp = result.select('div.tips span')
+var author = ''
+for (var i = 0; i < sp.size(); i++) {
+    var own = String(sp.get(i).ownText())
+    if (own.indexOf('作者：') == 0) { author = own; break }
+}
+String(author).replace(/^作者：/, '')
+```
+
 ## JS 规则注意
 
 - `result` 是 Java 对象，字符串操作前必须 `String(result)` 转换
@@ -66,6 +82,16 @@ class.odd.0@tag.a.0@text||tag.dd.0@tag.h1@text##全文阅读
 | `:` | 正则规则，不可省略，只可用在书籍列表和目录列表 |
 | `<js>...</js>` | JS 包裹标签，可在任意位置插入 JS 代码，也可作规则分隔符。例: `tag.li<js></js>//a` 或 `pre@html<js>处理逻辑</js>` |
 
+## 详情页识别
+
+`bookUrlPattern` 用正则匹配详情页地址，末尾加 `$` 让规则只落在详情页：
+
+```text
+https://www\.example\.com/book/\d+$
+```
+
+章节地址 `https://www.example.com/book/123/index/1.html` 因此不会命中详情页规则。
+
 ## URL 变量
 
 | 变量 | 说明 |
@@ -86,6 +112,6 @@ URL 末尾以 `,{JSON}` 追加，格式如 `https://example.com/page,{"webView":
 |------|------|
 | `webView: true/false` | 是否使用 WebView 渲染页面（JS 动态渲染的网站必开） |
 | `method: POST/GET/HEAD` | 请求方法，默认 GET |
-| `charset: string` | 编码，如 utf-8、gbk |
+| `charset: string` | 响应与 POST `body` 的编码，如 utf-8、gbk |
 | `header: {key:val}` | 自定义请求头 |
 | `body: string` | POST 请求体 |

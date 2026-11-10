@@ -209,6 +209,25 @@ java.startBrowser(url: String, title: String, html: String? = null)
 java.startBrowserAwait(url: String, title: String, refetchAfterSuccess: Boolean = false, html: String? = null): StrResponse
 ```
 
+**POST 表单与重定向：**
+
+`java.post` 基于 Jsoup，请求体按 UTF-8 发送，跳转目标从响应头读取：
+
+```js
+// 中文参数按目标站编码预编码
+var resp = java.post(url,
+    'keyboard=' + java.encodeURI(key, 'gbk') + '&show=title',
+    {'Content-Type': 'application/x-www-form-urlencoded'})
+// 302 的跳转地址
+var loc = String(resp.header('Location'))
+```
+
+搜索地址直接写 POST 时，用 URL 选项 `charset` 指定表单编码，`body` 里的中文参数原样书写：
+
+```text
+https://example.com/e/search/indexpage.php,{"method":"POST","body":"keyboard={{key}}&show=title","charset":"gbk"}
+```
+
 **调试：**
 ```js
 java.log(msg)
@@ -574,6 +593,60 @@ cache.getFromMemory(key: String): Any?       // 读取内存
 cache.deleteMemory(key: String)              // 删除内存
 ```
 
+## 事件回调（eventListener / callBackJs）
+
+书源可以监听阅读器事件并执行一段 JS，常用于「加入书架后自动分组」「删除书架时同步清理」。
+
+开启方式（书源 JSON）：
+
+```json
+"eventListener": true,
+"ruleContent": {
+  "callBackJs": "if (event === 'addBookShelf' && book) { book.group = book.group | 8; book.save() }"
+}
+```
+
+`eventListener` 为 `false` 或 `callBackJs` 为空时，回调不会执行。
+
+### 事件
+
+| event | 触发时机 | 可用对象 |
+|-------|----------|----------|
+| `addBookShelf` | 加入书架之后（详情页/阅读页/听书页） | `book` |
+| `delBookShelf` | 删除书架之前（书仍在库中） | `book` |
+| `startShelfRefresh` / `endShelfRefresh` | 书架刷新开始/结束，每个书源各一次 | `book = null` |
+| `startRead` / `endRead` | 开始/结束阅读 | `book`、`chapter` |
+| `saveRead` | 保存阅读进度 | `book`、`chapter`、`result`=本次时长(ms) |
+
+### 可用变量
+
+`event`、`book`、`chapter`、`result`、`java`（当前 BookSource 实例）、`source`、`baseUrl`、`cookie`、`cache`。
+
+回调在后台协程执行（书籍事件超时 60 秒，书架刷新类 30 秒）；异常只写入 AppLog，不会打断阅读器。
+
+### 示例：加入书架后自动归组
+
+```js
+if (event === "addBookShelf" && book) {
+  try {
+    if (!(book.group & 8)) {      // 8 = 目标分组的 groupId
+      book.group = book.group | 8
+      book.save()                  // 必须 save 才落库
+    }
+  } catch (e) {
+    java.log("自动分组失败: " + e)
+  }
+}
+```
+
+注意：
+
+- `book.group` 是位掩码（`Long`），一个分组占一位：置位 `| gid`，清零 `& ~gid`。
+- `addBookShelf` 在书已入库后触发，`book.save()` 是更新而非插入。
+- **分组 id 无法在规则内查询**：沙箱屏蔽了 `AppDatabase` 与 `io.legado.app.data.dao`，规则也没有枚举分组的接口。需从外部确定：建好分组后把一本书放进该组，用 Web API `/getBookshelf` 读该书的 `group` 值。
+- 重新导入书源会覆盖 `callBackJs`，修改版要单独备份。
+- 仅 App 内操作会触发；Web API `/saveBook` 直接写库不会触发。
+
 ## URL 选项参考
 
 URL 末尾以 `,{JSON}` 追加行内选项，格式如 `https://example.com/page,{"webView":true}`。
@@ -584,7 +657,7 @@ URL 末尾以 `,{JSON}` 追加行内选项，格式如 `https://example.com/page
 | `webJs` | string | WebView 加载完成后执行的 JS |
 | `webViewDelayTime` | number | 页面加载后等待延迟（毫秒） |
 | `method` | string | 请求方法：`POST` / `GET` / `HEAD` |
-| `charset` | string | 编码，如 `utf-8`、`gbk` |
+| `charset` | string | 响应与 POST `body` 的编码，如 `utf-8`、`gbk` |
 | `retry` | number | 重试次数 |
 | `header` | object | 自定义请求头，如 `{"User-Agent":"..."}` |
 | `headers` | array | 同上，数组格式 |
