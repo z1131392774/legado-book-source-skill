@@ -159,6 +159,8 @@ python3 scripts/legado-debug.py --host <手机IP> --source ./书源名.yaml --sa
 | String.replace 歧义 | `String(obj).replace(...)` |
 | 选择器无效 | 手机端html结构与PC端不符，更换UA/未使用`类型@名称`来提取属性/被反爬拦截（见 references/troubleshoot.md） |
 | 调试超时/无响应 | 手机锁屏，提醒用户解锁 |
+| 调试看不到页面原文 | 原文在 App 调试页的「搜索/书籍/目录/正文源码」菜单里，WS 只传摘要（见 references/troubleshoot.md） |
+| 改了规则不生效、一直显示旧错误 | 失败文案可能已被缓存，或阅读页仍持有旧书源对象（见 references/troubleshoot.md） |
 | 搜索不到 | 中文参数按站点编码预编码，或加 `charset` 选项（见 references/js-api.md） |
 
 ### 调试脚本

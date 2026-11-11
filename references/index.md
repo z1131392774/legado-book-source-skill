@@ -34,6 +34,9 @@
 | 搜索无结果、中文关键词无效、乱码、URL 参数异常 | `references/basics.md`, `references/js-api.md`, `references/troubleshoot.md` |
 | 页面浏览器有内容但脚本拿不到 | `references/troubleshoot.md`, `references/webjs.md` |
 | 403、验证盾、跳转、反爬、需要 UA/请求头/cookie | `references/troubleshoot.md`, `references/js-api.md` |
+| 调试看不到原始响应、只有摘要日志 | `references/troubleshoot.md` |
+| 改了规则不生效、阅读页一直显示旧错误 | `references/troubleshoot.md` |
+| 规则返回空又不报错、疑似没执行 | `references/troubleshoot.md`, `references/basics.md` |
 | JS 报错、String.replace 歧义、java.* 用法不确定 | `references/basics.md`, `references/js-api.md` |
 | WebView/webJs/动态渲染/调用网页 JS | `references/webjs.md`, `references/troubleshoot.md` |
 | 登录、按钮、回调、用户输入、变量持久化 | `references/login.md`, `references/patterns.md` |
@@ -61,6 +64,7 @@ charset
 cookie
 loginCheckJs
 java.ajax
+java.log
 java.post
 java.connect
 Location
