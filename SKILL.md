@@ -1,5 +1,5 @@
 ---
-name: legado-book-source
+name: legado-book-source-skill
 description: Use when creating, editing, continuing, reviewing, or debugging Legado book source rules, including follow-up turns after this skill was already used. Triggers：创建书源、编写源规则、修复书源、继续调试书源、书源调试、Legado配置、订阅源、替换净化规则。Also use when about to write selectors without defining expected output, or about to skip debugging, or about to batch-write rules before testing any.
 ---
 
